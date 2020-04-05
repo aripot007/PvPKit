@@ -9,8 +9,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import fr.aripot007.pvpkit.PvPKit;
 import fr.aripot007.pvpkit.game.Arena;
+import fr.aripot007.pvpkit.game.Game;
+import fr.aripot007.pvpkit.game.GameStatus;
+import fr.aripot007.pvpkit.game.GameType;
 import fr.aripot007.pvpkit.game.Kit;
 import fr.aripot007.pvpkit.manager.ArenaManager;
+import fr.aripot007.pvpkit.manager.GameManager;
 import fr.aripot007.pvpkit.manager.KitManager;
 import fr.aripot007.pvpkit.util.Messages;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -21,10 +25,12 @@ public class PvPKitAdminCommand implements CommandExecutor {
 
 	private KitManager kitmg;
 	private ArenaManager armg;
+	private GameManager gamemg;
 	
-	public PvPKitAdminCommand(KitManager kitmg, ArenaManager armg) {
+	public PvPKitAdminCommand(KitManager kitmg, ArenaManager armg, GameManager gamemg) {
 		this.kitmg = kitmg;
 		this.armg = armg;
+		this.gamemg = gamemg;
 	}
 	
 	
@@ -45,6 +51,10 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		} else if(args[0].equalsIgnoreCase("arena")) { //$NON-NLS-1$
 			
 			return onArenaCommand(sender, cmd, msg, args);
+			
+		} else if(args[0].equalsIgnoreCase("game")) {
+			
+			return onGameCommand(sender, cmd, msg, args);
 			
 		} else {
 			sender.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.unknown")); //$NON-NLS-1$
@@ -264,7 +274,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 					armg.saveArenas();
 					p.sendMessage(PvPKit.prefix+"§aSpawn de l'arène §b"+args[2]+" §adéfini avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 				} else {
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.arena_does_not_exist")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.arena_does_not_exist")); //$NON-NLS-1$
 				}
 				
 			}
@@ -356,8 +366,191 @@ public class PvPKitAdminCommand implements CommandExecutor {
 				}
 			}
 			return true;
+		} else {
+			p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.unknown")); //$NON-NLS-1$
+			p.sendMessage(PvPKit.prefix + "§cPour une liste des commandes disponibles, entrez &b/pka arena"); //$NON-NLS-1$
+			return false;
 		}
 		
+		return false;
+	}
+	
+	private boolean onGameCommand(CommandSender sender, Command cmd, String msg, String[] args) {
+		Player p = (Player) sender;
+		if(args.length == 1) {
+			
+			p.sendMessage("§e========[ §9/pka game §e]========"); //$NON-NLS-1$
+			p.sendMessage("§6Commandes disponibles :"); //$NON-NLS-1$
+			p.sendMessage("§b/pka game list"); //$NON-NLS-1$
+			p.sendMessage("§b/pka game create <nom>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka game remove <game>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka game setarena <game> <arena>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka game settype <game> <type>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka game setstatus <game> <status>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka game info <game>"); //$NON-NLS-1$
+			p.sendMessage("§e========[ §9/pka game §e]========"); //$NON-NLS-1$
+			return true;
+				
+		} else if (args[1].equalsIgnoreCase("list")){ //$NON-NLS-1$
+			
+			p.sendMessage("§e========[ §9Games §e]========"); //$NON-NLS-1$
+			for(Game game : GameManager.games.values()) {
+				if(game.isValid()) {
+					p.sendMessage("§a"+game.getName()+" ("+game.getType()+" | "+game.getStatus()+")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				} else {
+					TextComponent txt = new TextComponent("§c"+game.getName()+" ("+game.getType()+" | "+game.getStatus()+")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					String str = ""; //$NON-NLS-1$
+					for(String s : game.getErrors()) {
+						str	+= "\n§c"+s; //$NON-NLS-1$
+					}
+					str.replaceFirst("\n", ""); //$NON-NLS-1$ //$NON-NLS-2$
+					txt.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(str).create()));
+					p.sendMessage(txt.toString());
+				}
+			}
+			p.sendMessage("§e========[ §9Games §e]========"); //$NON-NLS-1$
+			return true;	
+			
+		} else if (args[1].equalsIgnoreCase("create")) { //$NON-NLS-1$
+			
+			if(args.length == 2) { // Pas de nom précisé
+				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_name")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cSyntaxe : /pka game create <nom>"); //$NON-NLS-1$
+				
+			} else if(args.length > 3) { // Trop d'arguments
+				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.no_space_in_name")); //$NON-NLS-1$
+				
+			} else {
+				if(KitManager.kits.containsKey(args[2])) { // Nom déjà pris
+					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.name_already_exist")); //$NON-NLS-1$
+				} else {
+					kitmg.putKit(new Kit(args[2]));
+					kitmg.saveKits();
+					p.sendMessage(PvPKit.prefix+"§aPartie §b"+args[2]+" créée avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
+					p.sendMessage(PvPKit.prefix+"§6Définissez son arène avec §2/pka game setarena "+args[2]+" <arène>"); //$NON-NLS-1$ //$NON-NLS-2$
+					p.sendMessage(PvPKit.prefix+"§6Définissez son type avec §2/pka game settype "+args[2]+" <type>"); //$NON-NLS-1$ //$NON-NLS-2$
+					p.sendMessage(PvPKit.prefix+"§6Définissez son status avec §2/pka game setstatus "+args[2]+" <statut>"); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
+			return true;
+			
+		} else if (args[1].equalsIgnoreCase("remove")) { //$NON-NLS-1$
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_game")); //$NON-NLS-1$
+			} else {
+				if(GameManager.games.containsKey(args[2])) {
+					gamemg.removeGame(args[2]);
+					gamemg.saveGames();
+					p.sendMessage(PvPKit.prefix+"§aPartie §b"+args[2]+" §asupprimée avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
+				} else {
+					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.game_does_not_exist")); //$NON-NLS-1$
+				}
+			}
+			return true;
+			
+		} else if (args[1].equalsIgnoreCase("setarena")) { //$NON-NLS-1$
+			if(args.length < 3) {
+				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_game")); //$NON-NLS-1$
+			} else if(GameManager.games.containsKey(args[2])) {
+				if(args.length < 4) {
+					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_arena")); //$NON-NLS-1$
+				} else if (ArenaManager.arenas.containsKey(args[3])) {
+					Game game = GameManager.games.get(args[2]);
+					game.setArena(ArenaManager.arenas.get(args[3]));
+					gamemg.putGame(game);
+					gamemg.saveGames();
+					p.sendMessage(PvPKit.prefix+"§aArène de la partie §b"+game.getName()+" §adéfinie avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
+					
+				} else {
+					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.arena_does_not_exist")); //$NON-NLS-1$
+				}
+					
+			} else {
+				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.game_does_not_exist")); //$NON-NLS-1$
+			}
+			
+			
+		} else if (args[1].equalsIgnoreCase("settype")) { //$NON-NLS-1$
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_game")); //$NON-NLS-1$
+			} else if(GameManager.games.containsKey(args[2])) {
+				if(args.length < 4) {
+					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_gametype")); //$NON-NLS-1$
+				} else {
+					Game game = GameManager.games.get(args[2]);
+					if(GameType.valueOf(args[3]) == null) {
+						p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.invalid_gametype")); //$NON-NLS-1$
+					} else {
+						game.setType(GameType.valueOf(args[3]));
+						gamemg.putGame(game);
+						gamemg.saveGames();
+						p.sendMessage(PvPKit.prefix+"§aType de jeu pour la partie §b"+game.getName()+" §adéfini avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+				}
+
+			} else {
+				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.game_does_not_exist")); //$NON-NLS-1$
+			}
+			return true;
+
+		} else if (args[1].equalsIgnoreCase("setstatus")) { //$NON-NLS-1$
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_game")); //$NON-NLS-1$
+			} else if(GameManager.games.containsKey(args[2])) {
+				if(args.length < 4) {
+					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_gamestatus")); //$NON-NLS-1$
+				} else {
+					Game game = GameManager.games.get(args[2]);
+					if(GameStatus.valueOf(args[3]) == null) {
+						p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.invalid_gamestatus")); //$NON-NLS-1$
+					} else if(game.isValid()){
+						game.setStatus(GameStatus.valueOf(args[3]));
+						gamemg.putGame(game);
+						gamemg.saveGames();
+						p.sendMessage(PvPKit.prefix+"§aStatut de la partie §b"+game.getName()+" §adéfini avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
+					} else {
+						p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.status_change_denied_invalid_game")); //$NON-NLS-1$
+						p.sendMessage("§cMerci de corriger ces erreurs :");//$NON-NLS-1$
+						for(String s : game.getErrors())
+							p.sendMessage("§e"+s); //$NON-NLS-1$
+					}
+				}
+
+			} else {
+				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.game_does_not_exist")); //$NON-NLS-1$
+			}
+			return true;
+		
+		} else if (args[1].equalsIgnoreCase("info")) { //$NON-NLS-1$
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_game")); //$NON-NLS-1$
+			} else if(GameManager.games.containsKey(args[2])) {
+				
+				Game game = GameManager.games.get(args[2]);
+				p.sendMessage("§e========[ §9"+game.getName()+" §e]========"); //$NON-NLS-1$ //$NON-NLS-2$
+				p.sendMessage("§6Type : §b"+game.getType() != null ? game.getType().toString() : "§cAucun"); //$NON-NLS-1$ //$NON-NLS-2$
+				p.sendMessage("§6Status : §b"+game.getStatus() != null ? game.getStatus().toString() : "§cAucun"); //$NON-NLS-1$ //$NON-NLS-2$
+				p.sendMessage("§6Arène : §b"+game.getArena() != null ? game.getArena().getName() : "§cAucune"); //$NON-NLS-1$ //$NON-NLS-2$
+				if(game.isValid()) {
+					p.sendMessage("§6Valide : §aoui"); //$NON-NLS-1$
+				} else {
+					p.sendMessage("§6Valide : §cnon"); //$NON-NLS-1$
+					p.sendMessage("§6Problèmes :"); //$NON-NLS-1$
+					for(String s : game.getErrors())
+						p.sendMessage(" §b- §c"+s); //$NON-NLS-1$
+				}
+				p.sendMessage("§e========[ §9"+game.getName()+" §e]========"); //$NON-NLS-1$ //$NON-NLS-2$
+				
+			} else {
+				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.game_does_not_exist")); //$NON-NLS-1$
+			}
+			return true;
+			
+		} else {
+			p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.unknown")); //$NON-NLS-1$
+			p.sendMessage(PvPKit.prefix + "§cPour une liste des commandes disponibles, entrez &b/pka game"); //$NON-NLS-1$
+			return false;
+		}
 		return false;
 	}
 	
