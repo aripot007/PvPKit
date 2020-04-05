@@ -1,57 +1,50 @@
 package fr.aripot007.pvpkit.game;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import org.bukkit.Material;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 
-public class Kit {
+import fr.aripot007.pvpkit.util.Messages;
+
+@SerializableAs("Kit")
+public class Kit implements ConfigurationSerializable {
 
 	private String name;
-	private String iconName;
-	private List<String> iconLore;
-	private Material iconItem;
-	private PlayerInventory inventory;
+	private ItemStack icon;
+	private ItemStack[] inventoryContent;
 	
 	public Kit(String name){
 		this.name = name;
-		this.iconName = null;
-		this.iconLore = null;
-		this.iconItem = null;
-		this.inventory = null;
 	}
 
-	public Kit(PlayerInventory inventory, String name, String iconName, List<String> iconLore, Material iconItem) {
-		this.inventory = inventory;
+	public Kit(String name, ItemStack icon, ItemStack[] content) {
 		this.name = name;
-		this.iconName = iconName;
-		this.iconLore = iconLore;
-		this.iconItem = iconItem;
+		this.icon = icon;
+		this.inventoryContent = content;
 	}
 	
 	public boolean isValid() {
-		return (inventory != null && inventory.getContents().length > 0 
-				&& iconItem != null && iconName != null && !iconName.equals(""));
+		return (inventoryContent != null && inventoryContent.length > 0 
+				&& !inventoryContent.equals(new ItemStack[41]) && icon != null);
+	}
+
+	public List<String> getErrors(){
+		List<String> errors = new ArrayList<String>();
+		if(name == null || name.equals(""))
+			errors.add(Messages.getString("errors.kit.name"));
+		if(icon == null || icon.getType().isAir())
+			errors.add(Messages.getString("errors.kit.icon"));
+		if(inventoryContent == null || inventoryContent.equals(new ItemStack[41]))
+			errors.add(Messages.getString("errors.kit.content"));
+		return errors;
 	}
 	
-	public ItemStack getIcon() {
-		ItemStack item = new ItemStack(iconItem);
-		ItemMeta meta = item.getItemMeta();
-		meta.setDisplayName(iconName);
-		meta.setLore(iconLore);
-		item.setItemMeta(meta);
-		return item;
-	}
-
-	public PlayerInventory getInventory() {
-		return inventory;
-	}
-	public void setInventory(PlayerInventory inventory) {
-		this.inventory = inventory;
-	}
-
 	public String getName() {
 		return name;
 	}
@@ -59,25 +52,45 @@ public class Kit {
 		this.name = name;
 	}
 
-	public String getIconName() {
-		return iconName;
+	public ItemStack getIcon() {
+		return icon;
 	}
-	public void setIconName(String iconName) {
-		this.iconName = iconName;
-	}
-
-	public List<String> getIconLore() {
-		return iconLore;
-	}
-	public void setIconLore(List<String> iconLore) {
-		this.iconLore = iconLore;
+	public void setIcon(ItemStack icon) {
+		this.icon = icon;
 	}
 
-	public Material getIconItem() {
-		return iconItem;
+	public ItemStack[] getInventoryContent() {
+		return inventoryContent;
 	}
-	public void setIconItem(Material iconItem) {
-		this.iconItem = iconItem;
+	public void setInventoryContent(ItemStack[] inventoryContent) {
+		this.inventoryContent = inventoryContent;
+	}
+
+	
+	@Override
+	public Map<String, Object> serialize() {
+		
+		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> inv = new HashMap<String, Object>();
+		result.put("icon", icon); //$NON-NLS-1$
+		result.put("name", name); //$NON-NLS-1$
+		for(ItemStack i:inventoryContent) {
+			inv.put(""+i, i); //$NON-NLS-1$
+		}
+		result.put("items", inv); //$NON-NLS-1$
+		return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static Kit deserialize(Map<String, Object> map) {
+		ItemStack icon = ItemStack.deserialize((Map<String, Object>) map.get("icon")); //$NON-NLS-1$
+		ItemStack[] content = new ItemStack[41];
+		Map<String, Object> inv = (Map<String, Object>) map.get("items"); //$NON-NLS-1$
+		for(Entry<String, Object> item : inv.entrySet()) {
+			content[Integer.parseInt(item.getKey())] = ItemStack.deserialize((Map<String, Object>) item.getValue());
+		}
+		String name = (String) map.get("name"); //$NON-NLS-1$
+		return new Kit(name, icon, content);
 	}
 	
 }

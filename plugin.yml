@@ -7,7 +7,15 @@ main: main.fr.aripot007.pvpkit.PvPKit
 
 commands:
   pvpkit:
-    description: Commande prncipale du pvpkit.
+    description: Commande principale du pvpkit.
     aliases: pk, pvpk, pkit
+    
+  pvpkitadmin:
+    description: Commande d'administration du PvPKit
+    permission: pvpkit.admin
+    aliases: pka, pkadmin, pvpkita, apk, adminpk
 
-permissions: []
+permissions:
+  pvpkit.admin:
+    default: op
+    description: Permet l'utilisation des commandes d'administration
