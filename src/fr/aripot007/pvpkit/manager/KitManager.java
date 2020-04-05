@@ -29,7 +29,7 @@ public class KitManager {
 	public void loadKits() {
 		kitsData = YamlConfiguration.loadConfiguration(kitsFile);
 		for(String s : kitsData.getKeys(false)) {
-			Kit kit = loadKit(s);
+			Kit kit = (Kit) kitsData.get(s);
 			kits.put(kit.getName(), kit);
 		}
 	}
@@ -48,11 +48,8 @@ public class KitManager {
 	}
 
 	public Kit loadKit(String name) {
+		kitsData = YamlConfiguration.loadConfiguration(kitsFile);
 		return (Kit) kitsData.get(name);
-	}
-
-	public static Map<String, Kit> getKits(){
-		return kits;
 	}
 
 	public static Set<Kit> getValidKits() {
@@ -77,15 +74,9 @@ public class KitManager {
 		kits.put(kit.getName(), kit);
 		return;
 	}
-
-	public void removeKit(Kit kit) {
-		kits.remove(kit.getName());
-		return;
-	}
 	
 	public void removeKit(String name) {
 		kits.remove(name);
 	}
 
-	
 }
