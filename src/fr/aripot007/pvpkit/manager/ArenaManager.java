@@ -28,6 +28,7 @@ public class ArenaManager {
 	
 	public void loadArenas() {
 		arData = YamlConfiguration.loadConfiguration(arFile);
+		arenas.clear();
 		for(String s : arData.getKeys(false)) {
 			Arena arena = (Arena) arData.get(s);
 			arenas.put(arena.getName(), arena);
@@ -47,7 +48,7 @@ public class ArenaManager {
 		try {
 			arData.save(arFile);
 		} catch (IOException e) {
-			log.severe("Erreur lors de la sauvegarde des kits :");
+			log.severe("Erreur lors de la sauvegarde des arènes :");
 			e.printStackTrace();
 		}
 	}

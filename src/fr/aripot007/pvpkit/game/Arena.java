@@ -35,7 +35,7 @@ public class Arena implements ConfigurationSerializable {
 	public boolean isValid() {
 		if(spawn != null && !kits.isEmpty()) {
 			for(String s : kits) {
-				if(!KitManager.kits.containsKey(s))
+				if(!KitManager.kits.containsKey(s) || !KitManager.kits.get(s).isValid())
 					return false;
 			}
 			return true;
@@ -53,6 +53,9 @@ public class Arena implements ConfigurationSerializable {
 		for(String s : kits) {
 			if(!KitManager.kits.containsKey(s))
 				errors.add("Le kit "+s+" n'existe pas");
+			else if(!KitManager.kits.get(s).isValid()) {
+				errors.add("Le kit "+s+" n'est pas valide");
+			}
 		}
 		return errors;
 	}

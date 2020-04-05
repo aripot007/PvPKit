@@ -28,6 +28,7 @@ public class KitManager {
 	
 	public void loadKits() {
 		kitsData = YamlConfiguration.loadConfiguration(kitsFile);
+		kits.clear();
 		for(String s : kitsData.getKeys(false)) {
 			Kit kit = (Kit) kitsData.get(s);
 			kits.put(kit.getName(), kit);
