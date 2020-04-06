@@ -140,7 +140,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_kit")); //$NON-NLS-1$
 			} else if(kitmg.containsKit(args[2])) {
 				
-				ItemStack icon = p.getInventory().getItemInMainHand();
+				ItemStack icon = p.getInventory().getItemInMainHand().clone();
 				if(icon != null && !icon.getType().isAir()) {
 					Kit kit = kitmg.getKit(args[2]);
 					ItemMeta meta = icon.getItemMeta();
@@ -157,7 +157,6 @@ public class PvPKitAdminCommand implements CommandExecutor {
 					}
 					icon.setItemMeta(meta);
 					kit.setIcon(icon);
-					kitmg.putKit(kit);
 					kitmg.saveKits();
 					p.sendMessage(PvPKit.prefix+"§aIcone du kit §b"+kit.getName()+" §adéfinie avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 					
@@ -176,7 +175,6 @@ public class PvPKitAdminCommand implements CommandExecutor {
 
 				Kit kit = kitmg.getKit(args[2]);
 				kit.setInventoryContent(p.getInventory().getContents());
-				kitmg.putKit(kit);
 				kitmg.saveKits();
 				p.sendMessage(PvPKit.prefix+"§aContenu du kit §b"+kit.getName()+" §adéfinie avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -272,7 +270,6 @@ public class PvPKitAdminCommand implements CommandExecutor {
 				if(armg.containsArena(args[2])) {
 					Arena arena = armg.getArena(args[2]);
 					arena.setSpawn(p.getLocation());
-					armg.putArena(arena);
 					armg.saveArenas();
 					p.sendMessage(PvPKit.prefix+"§aSpawn de l'arène §b"+args[2]+" §adéfini avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 				} else {
@@ -323,7 +320,6 @@ public class PvPKitAdminCommand implements CommandExecutor {
 								
 							} else {
 								arena.addKit(kit.getName());
-								armg.putArena(arena);
 								armg.saveArenas();
 								p.sendMessage(PvPKit.prefix+"§aKit §b"+args[3]+" §aactivé avec succès dans l'arène §b"+arena.getName()+" §a!"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							}
@@ -457,7 +453,6 @@ public class PvPKitAdminCommand implements CommandExecutor {
 				} else if (armg.containsArena(args[3])) {
 					Game game = gamemg.getGame(args[2]);
 					game.setArena(armg.getArena(args[3]));
-					gamemg.putGame(game);
 					gamemg.saveGames();
 					p.sendMessage(PvPKit.prefix+"§aArène de la partie §b"+game.getName()+" §adéfinie avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 					
@@ -479,9 +474,8 @@ public class PvPKitAdminCommand implements CommandExecutor {
 				} else {
 					Game game = gamemg.getGame(args[2]);
 					try {
-						GameType type = GameType.valueOf(args[3]);
+						GameType type = GameType.valueOf(args[3].toUpperCase());
 						game.setType(type);
-						gamemg.putGame(game);
 						gamemg.saveGames();
 						p.sendMessage(PvPKit.prefix+"§aType de jeu pour la partie §b"+game.getName()+" §adéfini avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 					} catch (Exception e) {
@@ -503,10 +497,9 @@ public class PvPKitAdminCommand implements CommandExecutor {
 				} else {
 					Game game = gamemg.getGame(args[2]);
 					try {
-						GameStatus status = GameStatus.valueOf(args[3]);
+						GameStatus status = GameStatus.valueOf(args[3].toUpperCase());
 						if(game.isValid()){
 							game.setStatus(status);
-							gamemg.putGame(game);
 							gamemg.saveGames();
 							p.sendMessage(PvPKit.prefix+"§aStatut de la partie §b"+game.getName()+" §adéfini avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 						} else {
