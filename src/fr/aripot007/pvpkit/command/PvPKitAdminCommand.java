@@ -81,18 +81,19 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		} else if (args[1].equalsIgnoreCase("list")){ //$NON-NLS-1$
 			
 			p.sendMessage("§e========[ §9Kits §e]========"); //$NON-NLS-1$
-			for(Kit kit : KitManager.kits.values()) {
+			for(Kit kit : kitmg.getKits().values()) {
 				if(kit.isValid()) {
 					p.sendMessage("§a"+kit.getName()); //$NON-NLS-1$
 				} else {
 					TextComponent txt = new TextComponent("§c"+kit.getName()); //$NON-NLS-1$
 					String str = ""; //$NON-NLS-1$
 					for(String s : kit.getErrors()) {
-						str	+= "\n§c"+s; //$NON-NLS-1$
+						str	+= "§c"+s; //$NON-NLS-1$
+						if(kit.getErrors().indexOf(s)+1 < kit.getErrors().size())
+							str +="\n"; //$NON-NLS-1$
 					}
-					str.replaceFirst("\n", ""); //$NON-NLS-1$ //$NON-NLS-2$
 					txt.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(str).create()));
-					p.sendMessage(txt.toString());
+					p.spigot().sendMessage(txt);
 				}
 			}
 			p.sendMessage("§e========[ §9Kits §e]========"); //$NON-NLS-1$
@@ -108,7 +109,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.kit.no_space_in_name")); //$NON-NLS-1$
 				
 			} else {
-				if(KitManager.kits.containsKey(args[2])) { // Nom déjà pris
+				if(kitmg.containsKit(args[2])) { // Nom déjà pris
 					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.kit.name_already_exist")); //$NON-NLS-1$
 				} else {
 					kitmg.putKit(new Kit(args[2]));
@@ -124,7 +125,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 			if(args.length == 2) {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_kit")); //$NON-NLS-1$
 			} else {
-				if(KitManager.kits.containsKey(args[2])) {
+				if(kitmg.containsKit(args[2])) {
 					kitmg.removeKit(args[2]);
 					kitmg.saveKits();
 					p.sendMessage(PvPKit.prefix+"§aKit §b"+args[2]+" §asupprimé avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -137,11 +138,11 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		} else if (args[1].equalsIgnoreCase("seticon")) { //$NON-NLS-1$
 			if(args.length == 2) {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_kit")); //$NON-NLS-1$
-			} else if(KitManager.kits.containsKey(args[2])) {
+			} else if(kitmg.containsKit(args[2])) {
 				
 				ItemStack icon = p.getInventory().getItemInMainHand();
 				if(icon != null && !icon.getType().isAir()) {
-					Kit kit = KitManager.kits.get(args[2]);
+					Kit kit = kitmg.getKit(args[2]);
 					ItemMeta meta = icon.getItemMeta();
 					if(args.length > 3) {
 						String name = ""; //$NON-NLS-1$
@@ -171,9 +172,9 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		} else if (args[1].equalsIgnoreCase("setinv")) { //$NON-NLS-1$
 			if(args.length == 2) {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_kit")); //$NON-NLS-1$
-			} else if(KitManager.kits.containsKey(args[2])) {
+			} else if(kitmg.containsKit(args[2])) {
 
-				Kit kit = KitManager.kits.get(args[2]);
+				Kit kit = kitmg.getKit(args[2]);
 				kit.setInventoryContent(p.getInventory().getContents());
 				kitmg.putKit(kit);
 				kitmg.saveKits();
@@ -202,26 +203,27 @@ public class PvPKitAdminCommand implements CommandExecutor {
 			p.sendMessage("§b/pka arena create <nom>"); //$NON-NLS-1$
 			p.sendMessage("§b/pka arena remove <arena>"); //$NON-NLS-1$
 			p.sendMessage("§b/pka arena setspawn <arena>"); //$NON-NLS-1$
-			p.sendMessage("§b/pka arena listkit"); //$NON-NLS-1$
-			p.sendMessage("§b/pka arena addkit"); //$NON-NLS-1$
-			p.sendMessage("§b/pka arena removekit"); //$NON-NLS-1$
+			p.sendMessage("§b/pka arena listkit <arena>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka arena addkit <arena> <kit>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka arena removekit <arena> <kit>"); //$NON-NLS-1$
 			p.sendMessage("§e========[ §9/pka arena §e]========"); //$NON-NLS-1$
 			
 		} else if (args[1].equalsIgnoreCase("list")){ // list //$NON-NLS-1$
 			
 			p.sendMessage("§e========[ §9Arènes §e]========"); //$NON-NLS-1$
-			for(Arena ar : ArenaManager.arenas.values()) {
+			for(Arena ar : armg.getArenas().values()) {
 				if(ar.isValid()) {
 					p.sendMessage("§a"+ar.getName()); //$NON-NLS-1$
 				} else {
 					TextComponent txt = new TextComponent("§c"+ar.getName()); //$NON-NLS-1$
 					String str = ""; //$NON-NLS-1$
 					for(String s : ar.getErrors()) {
-						str	+= "\n§c"+s; //$NON-NLS-1$
+						str	+= "§c"+s; //$NON-NLS-1$
+						if(ar.getErrors().indexOf(s)+1 < ar.getErrors().size())
+							str +="\n"; //$NON-NLS-1$
 					}
-					str.replaceFirst("\n", ""); //$NON-NLS-1$ //$NON-NLS-2$
 					txt.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(str).create()));
-					p.sendMessage(txt.toString());
+					p.spigot().sendMessage(txt);
 				}
 			}
 			p.sendMessage("§e========[ §9Arènes §e]========"); //$NON-NLS-1$
@@ -237,7 +239,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.no_space_in_name")); //$NON-NLS-1$
 				
 			} else {
-				if(ArenaManager.arenas.containsKey(args[2])) { // Nom déjà pris
+				if(armg.containsArena(args[2])) { // Nom déjà pris
 					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.name_already_exists")); //$NON-NLS-1$
 				} else {
 					armg.putArena(new Arena(args[2]));
@@ -253,7 +255,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 			if(args.length == 2) {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_arena")); //$NON-NLS-1$
 			} else {
-				if(ArenaManager.arenas.containsKey(args[2])) {
+				if(armg.containsArena(args[2])) {
 					armg.removeArena(args[2]);
 					armg.saveArenas();
 					p.sendMessage(PvPKit.prefix+"§aArène §b"+args[2]+" §asupprimée avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -267,8 +269,8 @@ public class PvPKitAdminCommand implements CommandExecutor {
 			if(args.length < 3) {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_arena")); //$NON-NLS-1$
 			} else {
-				if(ArenaManager.arenas.containsKey(args[2])) {
-					Arena arena = ArenaManager.arenas.get(args[3]);
+				if(armg.containsArena(args[2])) {
+					Arena arena = armg.getArena(args[2]);
 					arena.setSpawn(p.getLocation());
 					armg.putArena(arena);
 					armg.saveArenas();
@@ -284,10 +286,10 @@ public class PvPKitAdminCommand implements CommandExecutor {
 			if(args.length < 3) {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_arena")); //$NON-NLS-1$
 			} else {
-				if(ArenaManager.arenas.containsKey(args[2])) {
+				if(armg.containsArena(args[2])) {
 					p.sendMessage("§e========[ §9"+args[2]+" - kits §e]========"); //$NON-NLS-1$ //$NON-NLS-2$
 					p.sendMessage("§6Liste des kits autorisés dans l'arène §b"+args[2]+" :"); //$NON-NLS-1$ //$NON-NLS-2$
-					for(String s : ArenaManager.arenas.get(args[2]).getKits())
+					for(String s : armg.getArena(args[2]).getKits())
 						p.sendMessage("§a"+s); //$NON-NLS-1$
 					p.sendMessage("§e========[ §9"+args[2]+" - kits §e]========"); //$NON-NLS-1$ //$NON-NLS-2$
 				} else {
@@ -300,19 +302,19 @@ public class PvPKitAdminCommand implements CommandExecutor {
 			if(args.length < 3) {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_arena")); //$NON-NLS-1$
 			} else {
-				if(ArenaManager.arenas.containsKey(args[2])) {
+				if(armg.containsArena(args[2])) {
 					if(args.length < 4) {
 						p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_kit")); //$NON-NLS-1$
 					} else {					
 						
-						Arena arena = ArenaManager.arenas.get(args[2]);
+						Arena arena = armg.getArena(args[2]);
 						
 						if(arena.getKits().contains(args[3])) {
 							p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.kit.already_allowed")); //$NON-NLS-1$
 							
-						} else if(KitManager.kits.containsKey(args[3])) {
+						} else if(kitmg.containsKit(args[3])) {
 							
-							Kit kit = KitManager.kits.get(args[3]);
+							Kit kit = kitmg.getKit(args[3]);
 							
 							if(!kit.isValid()) {
 								p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.kit.invalid")); //$NON-NLS-1$
@@ -340,21 +342,18 @@ public class PvPKitAdminCommand implements CommandExecutor {
 			if(args.length < 3) {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_arena")); //$NON-NLS-1$
 			} else {
-				if(ArenaManager.arenas.containsKey(args[2])) {
+				if(armg.containsArena(args[2])) {
 					if(args.length < 4) {
 						p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_kit")); //$NON-NLS-1$
 					} else {					
 						
-						Arena arena = ArenaManager.arenas.get(args[2]);
+						Arena arena = armg.getArena(args[2]);
 						
 						if(arena.getKits().contains(args[3])) {
 							arena.removeKit(args[3]);
-							armg.putArena(arena);
-							armg.saveArenas();
 							p.sendMessage(PvPKit.prefix+"§aKit §b"+args[3]+" §cdésactivé §aavec succès dans l'arène §b"+arena.getName()+" §a!"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-						} else if(KitManager.kits.containsKey(args[3])) {
-							
+						} else if(kitmg.containsKit(args[3])) {
 							p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.kit.already_disallowed")); //$NON-NLS-1$
 							
 						} else {
@@ -394,18 +393,19 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		} else if (args[1].equalsIgnoreCase("list")){ //$NON-NLS-1$
 			
 			p.sendMessage("§e========[ §9Games §e]========"); //$NON-NLS-1$
-			for(Game game : GameManager.games.values()) {
+			for(Game game : gamemg.getGames().values()) {
 				if(game.isValid()) {
 					p.sendMessage("§a"+game.getName()+" ("+game.getType()+" | "+game.getStatus()+")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				} else {
 					TextComponent txt = new TextComponent("§c"+game.getName()+" ("+game.getType()+" | "+game.getStatus()+")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					String str = ""; //$NON-NLS-1$
 					for(String s : game.getErrors()) {
-						str	+= "\n§c"+s; //$NON-NLS-1$
+						str	+= "§c"+s; //$NON-NLS-1$
+						if(game.getErrors().indexOf(s)+1 < game.getErrors().size())
+							str +="\n"; //$NON-NLS-1$
 					}
-					str.replaceFirst("\n", ""); //$NON-NLS-1$ //$NON-NLS-2$
 					txt.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(str).create()));
-					p.sendMessage(txt.toString());
+					p.spigot().sendMessage(txt);
 				}
 			}
 			p.sendMessage("§e========[ §9Games §e]========"); //$NON-NLS-1$
@@ -421,11 +421,11 @@ public class PvPKitAdminCommand implements CommandExecutor {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.no_space_in_name")); //$NON-NLS-1$
 				
 			} else {
-				if(KitManager.kits.containsKey(args[2])) { // Nom déjà pris
+				if(gamemg.containsGame(args[2])) { // Nom déjà pris
 					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.name_already_exist")); //$NON-NLS-1$
 				} else {
-					kitmg.putKit(new Kit(args[2]));
-					kitmg.saveKits();
+					gamemg.putGame(new Game(args[2]));
+					gamemg.saveGames();
 					p.sendMessage(PvPKit.prefix+"§aPartie §b"+args[2]+" créée avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 					p.sendMessage(PvPKit.prefix+"§6Définissez son arène avec §2/pka game setarena "+args[2]+" <arène>"); //$NON-NLS-1$ //$NON-NLS-2$
 					p.sendMessage(PvPKit.prefix+"§6Définissez son type avec §2/pka game settype "+args[2]+" <type>"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -438,7 +438,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 			if(args.length == 2) {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_game")); //$NON-NLS-1$
 			} else {
-				if(GameManager.games.containsKey(args[2])) {
+				if(gamemg.containsGame(args[2])) {
 					gamemg.removeGame(args[2]);
 					gamemg.saveGames();
 					p.sendMessage(PvPKit.prefix+"§aPartie §b"+args[2]+" §asupprimée avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -451,12 +451,12 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		} else if (args[1].equalsIgnoreCase("setarena")) { //$NON-NLS-1$
 			if(args.length < 3) {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_game")); //$NON-NLS-1$
-			} else if(GameManager.games.containsKey(args[2])) {
+			} else if(gamemg.containsGame(args[2])) {
 				if(args.length < 4) {
 					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_arena")); //$NON-NLS-1$
-				} else if (ArenaManager.arenas.containsKey(args[3])) {
-					Game game = GameManager.games.get(args[2]);
-					game.setArena(ArenaManager.arenas.get(args[3]));
+				} else if (armg.containsArena(args[3])) {
+					Game game = gamemg.getGame(args[2]);
+					game.setArena(armg.getArena(args[3]));
 					gamemg.putGame(game);
 					gamemg.saveGames();
 					p.sendMessage(PvPKit.prefix+"§aArène de la partie §b"+game.getName()+" §adéfinie avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -473,18 +473,19 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		} else if (args[1].equalsIgnoreCase("settype")) { //$NON-NLS-1$
 			if(args.length == 2) {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_game")); //$NON-NLS-1$
-			} else if(GameManager.games.containsKey(args[2])) {
+			} else if(gamemg.containsGame(args[2])) {
 				if(args.length < 4) {
 					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_gametype")); //$NON-NLS-1$
 				} else {
-					Game game = GameManager.games.get(args[2]);
-					if(GameType.valueOf(args[3]) == null) {
-						p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.invalid_gametype")); //$NON-NLS-1$
-					} else {
-						game.setType(GameType.valueOf(args[3]));
+					Game game = gamemg.getGame(args[2]);
+					try {
+						GameType type = GameType.valueOf(args[3]);
+						game.setType(type);
 						gamemg.putGame(game);
 						gamemg.saveGames();
 						p.sendMessage(PvPKit.prefix+"§aType de jeu pour la partie §b"+game.getName()+" §adéfini avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
+					} catch (Exception e) {
+						p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.invalid_gametype")); //$NON-NLS-1$
 					}
 				}
 
@@ -496,23 +497,26 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		} else if (args[1].equalsIgnoreCase("setstatus")) { //$NON-NLS-1$
 			if(args.length == 2) {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_game")); //$NON-NLS-1$
-			} else if(GameManager.games.containsKey(args[2])) {
+			} else if(gamemg.containsGame(args[2])) {
 				if(args.length < 4) {
 					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_gamestatus")); //$NON-NLS-1$
 				} else {
-					Game game = GameManager.games.get(args[2]);
-					if(GameStatus.valueOf(args[3]) == null) {
+					Game game = gamemg.getGame(args[2]);
+					try {
+						GameStatus status = GameStatus.valueOf(args[3]);
+						if(game.isValid()){
+							game.setStatus(status);
+							gamemg.putGame(game);
+							gamemg.saveGames();
+							p.sendMessage(PvPKit.prefix+"§aStatut de la partie §b"+game.getName()+" §adéfini avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
+						} else {
+							p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.status_change_denied_invalid_game")); //$NON-NLS-1$
+							p.sendMessage("§cMerci de corriger ces erreurs :");//$NON-NLS-1$
+							for(String s : game.getErrors())
+								p.sendMessage("§e"+s); //$NON-NLS-1$
+						}
+					} catch (Exception e) {
 						p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.invalid_gamestatus")); //$NON-NLS-1$
-					} else if(game.isValid()){
-						game.setStatus(GameStatus.valueOf(args[3]));
-						gamemg.putGame(game);
-						gamemg.saveGames();
-						p.sendMessage(PvPKit.prefix+"§aStatut de la partie §b"+game.getName()+" §adéfini avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
-					} else {
-						p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.status_change_denied_invalid_game")); //$NON-NLS-1$
-						p.sendMessage("§cMerci de corriger ces erreurs :");//$NON-NLS-1$
-						for(String s : game.getErrors())
-							p.sendMessage("§e"+s); //$NON-NLS-1$
 					}
 				}
 
@@ -524,9 +528,9 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		} else if (args[1].equalsIgnoreCase("info")) { //$NON-NLS-1$
 			if(args.length == 2) {
 				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_game")); //$NON-NLS-1$
-			} else if(GameManager.games.containsKey(args[2])) {
+			} else if(gamemg.containsGame(args[2])) {
 				
-				Game game = GameManager.games.get(args[2]);
+				Game game = gamemg.getGame(args[2]);
 				p.sendMessage("§e========[ §9"+game.getName()+" §e]========"); //$NON-NLS-1$ //$NON-NLS-2$
 				p.sendMessage("§6Type : §b"+game.getType() != null ? game.getType().toString() : "§cAucun"); //$NON-NLS-1$ //$NON-NLS-2$
 				p.sendMessage("§6Status : §b"+game.getStatus() != null ? game.getStatus().toString() : "§cAucun"); //$NON-NLS-1$ //$NON-NLS-2$
