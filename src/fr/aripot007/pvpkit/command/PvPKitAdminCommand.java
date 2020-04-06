@@ -525,9 +525,9 @@ public class PvPKitAdminCommand implements CommandExecutor {
 				
 				Game game = gamemg.getGame(args[2]);
 				p.sendMessage("§e========[ §9"+game.getName()+" §e]========"); //$NON-NLS-1$ //$NON-NLS-2$
-				p.sendMessage("§6Type : §b"+game.getType() != null ? game.getType().toString() : "§cAucun"); //$NON-NLS-1$ //$NON-NLS-2$
-				p.sendMessage("§6Status : §b"+game.getStatus() != null ? game.getStatus().toString() : "§cAucun"); //$NON-NLS-1$ //$NON-NLS-2$
-				p.sendMessage("§6Arène : §b"+game.getArena() != null ? game.getArena().getName() : "§cAucune"); //$NON-NLS-1$ //$NON-NLS-2$
+				p.sendMessage("§6Type : §b"+(game.getType() != null ? game.getType().toString() : "§cAucun")); //$NON-NLS-1$ //$NON-NLS-2$
+				p.sendMessage("§6Status : §b"+(game.getStatus() != null ? game.getStatus().toString() : "§cAucun")); //$NON-NLS-1$ //$NON-NLS-2$
+				p.sendMessage("§6Arène : §b"+(game.getArena() != null ? game.getArena().getName() : "§cAucune")); //$NON-NLS-1$ //$NON-NLS-2$
 				if(game.isValid()) {
 					p.sendMessage("§6Valide : §aoui"); //$NON-NLS-1$
 				} else {
