@@ -72,12 +72,17 @@ public class Kit implements ConfigurationSerializable {
 		
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, Object> inv = new HashMap<String, Object>();
-		result.put("icon", icon); //$NON-NLS-1$
 		result.put("name", name); //$NON-NLS-1$
-		for(ItemStack i:inventoryContent) {
-			inv.put(""+i, i); //$NON-NLS-1$
+		result.put("icon", icon); //$NON-NLS-1$
+		if(inventoryContent != null) {
+			for(int i = 0; i < inventoryContent.length; i++) {
+				if(inventoryContent[i] != null)
+					inv.put(""+i, inventoryContent[i]); //$NON-NLS-1$
+			}
+			result.put("items", inv); //$NON-NLS-1$
+		} else {
+			result.put("items", null); //$NON-NLS-1$
 		}
-		result.put("items", inv); //$NON-NLS-1$
 		return result;
 	}
 	

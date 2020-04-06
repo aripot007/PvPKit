@@ -10,7 +10,7 @@ import java.util.Set;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 
-import fr.aripot007.pvpkit.manager.ArenaManager;
+import fr.aripot007.pvpkit.PvPKit;
 
 @SerializableAs("Game")
 public class Game implements ConfigurationSerializable {
@@ -103,7 +103,7 @@ public class Game implements ConfigurationSerializable {
 	public Map<String, Object> serialize() {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("name", name);
-		result.put("arena", arena.getName());
+		result.put("arena", arena != null ? arena.getName() : null);
 		result.put("type", type.toString());
 		result.put("status", status.toString());
 		return result;
@@ -111,7 +111,7 @@ public class Game implements ConfigurationSerializable {
 	
 	public static Game deserialize(Map<String, Object> map) {
 		String name = (String) map.get("name");
-		Arena arena = ArenaManager.arenas.get((String) map.get("arena"));
+		Arena arena = PvPKit.getArenaManager().getArena((String) map.get("arena"));
 		GameType type = GameType.valueOf((String) map.get("type"));
 		GameStatus status = GameStatus.valueOf((String) map.get("status"));
 		return new Game(name, arena, status, type);
