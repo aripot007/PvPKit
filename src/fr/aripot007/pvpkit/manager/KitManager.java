@@ -16,12 +16,14 @@ import fr.aripot007.pvpkit.game.Kit;
 
 public class KitManager {
 	
-	private Logger log = Bukkit.getPluginManager().getPlugin("PvPKit").getLogger();
-	private File kitsFile = new File(Bukkit.getPluginManager().getPlugin("PvPKit").getDataFolder(), "kits.yml");
+	private Logger log;
+	private File kitsFile;
 	private FileConfiguration kitsData;
-	public static Map<String, Kit> kits;
+	private Map<String, Kit> kits;
 	
 	public KitManager() {
+		log = Bukkit.getPluginManager().getPlugin("PvPKit").getLogger();
+		kitsFile = new File(Bukkit.getPluginManager().getPlugin("PvPKit").getDataFolder(), "kits.yml");
 		kits = new HashMap<String, Kit>();
 		loadKits();
 	}
@@ -53,7 +55,7 @@ public class KitManager {
 		return (Kit) kitsData.get(name);
 	}
 
-	public static Set<Kit> getValidKits() {
+	public Set<Kit> getValidKits() {
 		Set<Kit> result = new HashSet<Kit>();
 		for(Kit kit : kits.values()) {
 			if(kit.isValid())
@@ -62,7 +64,7 @@ public class KitManager {
 		return result;
 	}
 	
-	public static Set<Kit> getInvalidKits() {
+	public Set<Kit> getInvalidKits() {
 		Set<Kit> result = new HashSet<Kit>();
 		for(Kit kit : kits.values()) {
 			if(!kit.isValid())
@@ -71,6 +73,22 @@ public class KitManager {
 		return result;
 	}
 
+	public Map<String, Kit> getKits() {
+		return kits;
+	}
+	
+	public Set<String> getKitsKeySet() {
+		return new HashSet<String>(kits.keySet());
+	}
+	
+	public Kit getKit(String name) {
+		return kits.get(name);
+	}
+	
+	public boolean containsKit(String name) {
+		return kits.containsKey(name);
+	}
+	
 	public void putKit(Kit kit) {
 		kits.put(kit.getName(), kit);
 		return;

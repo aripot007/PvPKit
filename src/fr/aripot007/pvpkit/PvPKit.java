@@ -18,9 +18,9 @@ public class PvPKit extends JavaPlugin {
 
 	Logger log = this.getLogger();
 	public static String prefix;
-	private KitManager kitManager;
-	private ArenaManager arenaManager;
-	private GameManager gameManager;
+	private static KitManager kitManager;
+	private static ArenaManager arenaManager;
+	private static GameManager gameManager;
 	
 	@Override
 	public void onEnable(){
@@ -30,9 +30,12 @@ public class PvPKit extends JavaPlugin {
 		
 		prefix = this.getConfig().getString("prefix").replaceAll("&", "§");
 		
-		this.kitManager = new KitManager();
-		this.arenaManager = new ArenaManager();
-		this.gameManager = new GameManager();
+		kitManager = new KitManager();
+		arenaManager = new ArenaManager();
+		gameManager = new GameManager();
+		kitManager.loadKits();
+		arenaManager.loadArenas();
+		gameManager.loadGames();
 		
 		getCommand("pvpkit").setExecutor(new PvPKitCommand());
 		getCommand("pvpkitadmin").setExecutor(new PvPKitAdminCommand(kitManager, arenaManager, gameManager));
@@ -41,6 +44,18 @@ public class PvPKit extends JavaPlugin {
 	@Override
 	public void onDisable(){
 		
+	}
+	
+	public static KitManager getKitManager() {
+		return kitManager;
+	}
+	
+	public static ArenaManager getArenaManager() {
+		return arenaManager;
+	}
+	
+	public static GameManager getGameManager() {
+		return gameManager;
 	}
 
 }

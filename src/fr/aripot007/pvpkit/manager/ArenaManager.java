@@ -16,12 +16,14 @@ import fr.aripot007.pvpkit.game.Arena;
 
 public class ArenaManager {
 	
-	private Logger log = Bukkit.getPluginManager().getPlugin("PvPKit").getLogger();
-	private File arFile = new File(Bukkit.getPluginManager().getPlugin("PvPKit").getDataFolder(), "arenas.yml");
+	private Logger log;
+	private File arFile;
 	private FileConfiguration arData;
-	public static Map<String, Arena> arenas;
+	private Map<String, Arena> arenas;
 
 	public ArenaManager() {
+		log = Bukkit.getPluginManager().getPlugin("PvPKit").getLogger();
+		arFile = new File(Bukkit.getPluginManager().getPlugin("PvPKit").getDataFolder(), "arenas.yml");
 		arenas = new HashMap<String, Arena>();
 		loadArenas();
 	}
@@ -51,6 +53,18 @@ public class ArenaManager {
 			log.severe("Erreur lors de la sauvegarde des arènes :");
 			e.printStackTrace();
 		}
+	}
+	
+	public Map<String, Arena> getArenas(){
+		return arenas;
+	}
+	
+	public Arena getArena(String name) {
+		return arenas.get(name);
+	}
+	
+	public boolean containsArena(String name) {
+		return arenas.containsKey(name);
 	}
 	
 	public void putArena(Arena arena) {

@@ -14,12 +14,14 @@ import fr.aripot007.pvpkit.game.Game;
 
 public class GameManager {
 	
-	private Logger log = Bukkit.getPluginManager().getPlugin("PvPKit").getLogger();
-	private File gameFile = new File(Bukkit.getPluginManager().getPlugin("PvPKit").getDataFolder(), "games.yml");
+	private Logger log;
+	private File gameFile;
 	private FileConfiguration gameData;
-	public static Map<String, Game> games;
+	private Map<String, Game> games;
 
 	public GameManager() {
+		log = Bukkit.getPluginManager().getPlugin("PvPKit").getLogger();
+		gameFile = new File(Bukkit.getPluginManager().getPlugin("PvPKit").getDataFolder(), "games.yml");
 		games = new HashMap<String, Game>();
 		loadGames();
 	}
@@ -44,9 +46,21 @@ public class GameManager {
 		try {
 			gameData.save(gameFile);
 		} catch (IOException e) {
-			log.severe("Erreur lors de la sauvegarde des jeux :");
+			log.severe("Erreur lors de la sauvegarde des parties :");
 			e.printStackTrace();
 		}
+	}
+	
+	public Game getGame(String name) {
+		return games.get(name);
+	}
+	
+	public Map<String, Game> getGames() {
+		return games;
+	}
+	
+	public boolean containsGame(String name) {
+		return games.containsKey(name);
 	}
 	
 	public void putGame(Game game) {
