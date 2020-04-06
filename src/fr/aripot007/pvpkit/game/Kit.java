@@ -88,11 +88,11 @@ public class Kit implements ConfigurationSerializable {
 	
 	@SuppressWarnings("unchecked")
 	public static Kit deserialize(Map<String, Object> map) {
-		ItemStack icon = ItemStack.deserialize((Map<String, Object>) map.get("icon")); //$NON-NLS-1$
+		ItemStack icon = (ItemStack) map.get("icon"); //$NON-NLS-1$
 		ItemStack[] content = new ItemStack[41];
 		Map<String, Object> inv = (Map<String, Object>) map.get("items"); //$NON-NLS-1$
 		for(Entry<String, Object> item : inv.entrySet()) {
-			content[Integer.parseInt(item.getKey())] = ItemStack.deserialize((Map<String, Object>) item.getValue());
+			content[Integer.parseInt(item.getKey())] = (ItemStack) item.getValue();
 		}
 		String name = (String) map.get("name"); //$NON-NLS-1$
 		return new Kit(name, icon, content);
