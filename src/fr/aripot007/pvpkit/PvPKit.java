@@ -10,9 +10,11 @@ import fr.aripot007.pvpkit.command.PvPKitCommand;
 import fr.aripot007.pvpkit.game.Arena;
 import fr.aripot007.pvpkit.game.Game;
 import fr.aripot007.pvpkit.game.Kit;
+import fr.aripot007.pvpkit.listener.GameControllerListener;
 import fr.aripot007.pvpkit.manager.ArenaManager;
 import fr.aripot007.pvpkit.manager.GameManager;
 import fr.aripot007.pvpkit.manager.KitManager;
+import fr.aripot007.pvpkit.manager.PvPKitPlayerManager;
 
 public class PvPKit extends JavaPlugin {
 
@@ -21,6 +23,14 @@ public class PvPKit extends JavaPlugin {
 	private static KitManager kitManager;
 	private static ArenaManager arenaManager;
 	private static GameManager gameManager;
+	private static PvPKitPlayerManager playerManager;
+	private static GameController gameController;
+	
+	private static PvPKit instance = null;
+	
+	public PvPKit() {
+		instance = this;
+	}
 	
 	@Override
 	public void onEnable(){
@@ -33,12 +43,17 @@ public class PvPKit extends JavaPlugin {
 		kitManager = new KitManager();
 		arenaManager = new ArenaManager();
 		gameManager = new GameManager();
+		playerManager = new PvPKitPlayerManager();
+		gameController = new GameController();
+		playerManager.reloadData();
 		kitManager.loadKits();
 		arenaManager.loadArenas();
 		gameManager.loadGames();
 		
 		getCommand("pvpkit").setExecutor(new PvPKitCommand());
 		getCommand("pvpkitadmin").setExecutor(new PvPKitAdminCommand(kitManager, arenaManager, gameManager));
+		
+		getServer().getPluginManager().registerEvents(new GameControllerListener(), this);
 	}
 	
 	@Override
@@ -56,6 +71,18 @@ public class PvPKit extends JavaPlugin {
 	
 	public static GameManager getGameManager() {
 		return gameManager;
+	}
+	
+	public static PvPKitPlayerManager getPvPKitPlayerManager() {
+		return playerManager;
+	}
+	
+	public static GameController getGameController() {
+		return gameController;
+	}
+	
+	public static PvPKit getInstance() {
+		return instance;
 	}
 
 }

@@ -11,6 +11,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 
 import fr.aripot007.pvpkit.PvPKit;
+import net.md_5.bungee.api.chat.BaseComponent;
 
 @SerializableAs("Game")
 public class Game implements ConfigurationSerializable {
@@ -117,4 +118,16 @@ public class Game implements ConfigurationSerializable {
 		return new Game(name, arena, status, type);
 	}
 
+	public void sendMessage(String message) {
+		for(PvPKitPlayer p : players) {
+			p.getPlayer().sendMessage(message);
+		}
+	}
+	
+	public void sendMessage(BaseComponent component) {
+		for(PvPKitPlayer p : players) {
+			p.getPlayer().spigot().sendMessage(component);
+		}
+	}
+	
 }
