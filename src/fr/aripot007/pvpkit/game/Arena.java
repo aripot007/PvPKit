@@ -2,10 +2,8 @@ package fr.aripot007.pvpkit.game;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -19,15 +17,15 @@ public class Arena implements ConfigurationSerializable {
 	
 	private Location spawn;
 	private String name;
-	private Set<String> kits;
+	private List<String> kits;
 	
 	public Arena(String name) {
 		this.spawn = null;
 		this.name = name;
-		this.kits = PvPKit.getKitManager().getKitsKeySet();
+		this.kits = new ArrayList<String>(PvPKit.getKitManager().getKitsKeySet());
 	}
 	
-	public Arena(String name, Location spawn,Set<String> kits) {
+	public Arena(String name, Location spawn,List<String> kits) {
 		this.spawn = spawn;
 		this.name = name;
 		this.kits = kits;
@@ -77,11 +75,11 @@ public class Arena implements ConfigurationSerializable {
 		this.name = name;
 	}
 
-	public Set<String> getKits() {
+	public List<String> getKits() {
 		return kits;
 	}
 
-	public void setKits(Set<String> kits) {
+	public void setKits(List<String> kits) {
 		this.kits = kits;
 	}
 	
@@ -113,7 +111,7 @@ public class Arena implements ConfigurationSerializable {
 	public static Arena deserialize(Map<String, Object> map) {
 		String name = (String) map.get("name"); //$NON-NLS-1$
 		Location spawn = (Location) map.get("spawn"); //$NON-NLS-1$
-		Set<String> kits = new HashSet<String>((List<String>)map.get("kits")); //$NON-NLS-1$
+		List<String> kits = (List<String>)map.get("kits"); //$NON-NLS-1$
 		return new Arena(name, spawn, kits);
 	}
 	
