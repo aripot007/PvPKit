@@ -22,7 +22,7 @@ public class Arena implements ConfigurationSerializable {
 	public Arena(String name) {
 		this.spawn = null;
 		this.name = name;
-		this.kits = new ArrayList<String>(PvPKit.getKitManager().getKitsKeySet());
+		this.kits = new ArrayList<String>(PvPKit.getInstance().getKitManager().getKitsKeySet());
 	}
 	
 	public Arena(String name, Location spawn,List<String> kits) {
@@ -34,7 +34,7 @@ public class Arena implements ConfigurationSerializable {
 	public boolean isValid() {
 		if(spawn != null && !kits.isEmpty()) {
 			for(String s : kits) {
-				if(!PvPKit.getKitManager().containsKit(s) || !PvPKit.getKitManager().getKit(s).isValid())
+				if(!PvPKit.getInstance().getKitManager().containsKit(s) || !PvPKit.getInstance().getKitManager().getKit(s).isValid())
 					return false;
 			}
 			return true;
@@ -50,9 +50,9 @@ public class Arena implements ConfigurationSerializable {
 		if(kits.isEmpty())
 			errors.add(Messages.getString("errors.arena.no_kit")); //$NON-NLS-1$
 		for(String s : kits) {
-			if(!PvPKit.getKitManager().containsKit(s))
+			if(!PvPKit.getInstance().getKitManager().containsKit(s))
 				errors.add("Le kit "+s+" n'existe pas");
-			else if(!PvPKit.getKitManager().getKit(s).isValid()) {
+			else if(!PvPKit.getInstance().getKitManager().getKit(s).isValid()) {
 				errors.add("Le kit "+s+" n'est pas valide");
 			}
 		}

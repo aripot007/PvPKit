@@ -44,6 +44,20 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		
 		if(args.length == 0) {
 			
+		} else if(args[0].equalsIgnoreCase("dumpdata")){
+			
+			System.out.println("Parties :");
+			
+			for(Game g : gamemg.getGames().values()) {
+				System.out.println("Partie : "+g.getName());
+				System.out.println("    arène : "+g.getArena().getName());
+				System.out.println("    type : "+g.getType());
+				System.out.println("    status : "+g.getStatus());
+				System.out.println("    joueurs : "+g.getPlayers());
+			}
+			PvPKit.getInstance().getGameController().dumpInGamePlayers();
+			PvPKit.getInstance().getPvPKitPlayerManager().dumpPlayers();
+		
 		} else if(args[0].equalsIgnoreCase("kit")) { //$NON-NLS-1$
 		
 			return onKitCommand(sender, cmd, msg, args);

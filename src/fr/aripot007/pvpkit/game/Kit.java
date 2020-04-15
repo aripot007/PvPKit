@@ -10,8 +10,6 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.inventory.ItemStack;
 
-import fr.aripot007.pvpkit.util.Messages;
-
 @SerializableAs("Kit")
 public class Kit implements ConfigurationSerializable {
 
@@ -37,11 +35,11 @@ public class Kit implements ConfigurationSerializable {
 	public List<String> getErrors(){
 		List<String> errors = new ArrayList<String>();
 		if(name == null || name.equals(""))
-			errors.add(Messages.getString("errors.kit.name"));
+			errors.add("Le nom du kit n'est pas valide.");
 		if(icon == null || icon.getType().isAir())
-			errors.add(Messages.getString("errors.kit.icon"));
+			errors.add("Le kit n'a pas d'icone valide");
 		if(inventoryContent == null || inventoryContent.equals(new ItemStack[41]))
-			errors.add(Messages.getString("errors.kit.content"));
+			errors.add("Le kit ne contient rien.");
 		return errors;
 	}
 	
