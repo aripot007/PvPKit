@@ -165,7 +165,7 @@ public class GameControllerListener implements Listener {
 	
 	@EventHandler
 	public void onRightClick(PlayerInteractEvent event) {
-		if(event.getItem() != null && event.getItem().getType() == Material.AIR)
+		if(event.getItem() == null || event.getItem().getType() == Material.AIR)
 			return;
 		PvPKitPlayer p = playerManager.getPlayer(event.getPlayer());
 		if(p.isInGame()) {
