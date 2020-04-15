@@ -10,7 +10,6 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 
 import fr.aripot007.pvpkit.PvPKit;
-import fr.aripot007.pvpkit.util.Messages;
 
 @SerializableAs("Arena")
 public class Arena implements ConfigurationSerializable {
@@ -46,9 +45,9 @@ public class Arena implements ConfigurationSerializable {
 	public List<String> getErrors() {
 		List<String> errors = new ArrayList<String>();
 		if(spawn == null)
-			errors.add(Messages.getString("errors.arena.no_spawn")); //$NON-NLS-1$
+			errors.add("Le spawn n'est pas défini."); //$NON-NLS-1$
 		if(kits.isEmpty())
-			errors.add(Messages.getString("errors.arena.no_kit")); //$NON-NLS-1$
+			errors.add("L'arène n'a aucun kit autorisé."); //$NON-NLS-1$
 		for(String s : kits) {
 			if(!PvPKit.getInstance().getKitManager().containsKit(s))
 				errors.add("Le kit "+s+" n'existe pas");

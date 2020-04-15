@@ -20,11 +20,11 @@ public class PvPKit extends JavaPlugin {
 
 	Logger log = this.getLogger();
 	public static String prefix;
-	private static KitManager kitManager;
-	private static ArenaManager arenaManager;
-	private static GameManager gameManager;
-	private static PvPKitPlayerManager playerManager;
-	private static GameController gameController;
+	public KitManager kitManager;
+	public ArenaManager arenaManager;
+	public GameManager gameManager;
+	public PvPKitPlayerManager playerManager;
+	public GameController gameController;
 	
 	private static PvPKit instance = null;
 	
@@ -58,26 +58,26 @@ public class PvPKit extends JavaPlugin {
 	
 	@Override
 	public void onDisable(){
-		
+		playerManager.savePlayers();
 	}
 	
-	public static KitManager getKitManager() {
+	public KitManager getKitManager() {
 		return kitManager;
 	}
 	
-	public static ArenaManager getArenaManager() {
+	public ArenaManager getArenaManager() {
 		return arenaManager;
 	}
 	
-	public static GameManager getGameManager() {
+	public GameManager getGameManager() {
 		return gameManager;
 	}
 	
-	public static PvPKitPlayerManager getPvPKitPlayerManager() {
+	public PvPKitPlayerManager getPvPKitPlayerManager() {
 		return playerManager;
 	}
 	
-	public static GameController getGameController() {
+	public GameController getGameController() {
 		return gameController;
 	}
 	

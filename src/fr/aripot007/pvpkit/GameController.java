@@ -2,8 +2,10 @@ package fr.aripot007.pvpkit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -22,13 +24,14 @@ import fr.aripot007.pvpkit.util.GUIUtil;
 
 public class GameController {
 
-	private Map<PvPKitPlayer, Game> ingamePlayers;
-	public static final ItemStack kitMenuItem;
-	public static final ItemStack leaveItem;
+	private Map<PvPKitPlayer, Game> ingamePlayers = new HashMap<PvPKitPlayer, Game>();
+	public final ItemStack kitMenuItem;
+	public final ItemStack leaveItem;
 	
-	private KitManager kitManager = PvPKit.getKitManager();
+	private KitManager kitManager = PvPKit.getInstance().getKitManager();
 	
-	static {
+	
+	public GameController() {
 		kitMenuItem = new ItemStack(Material.CHEST);
 		ItemMeta meta = kitMenuItem.getItemMeta();
 		meta.setDisplayName("§5§lChoisir un kit");
@@ -41,13 +44,11 @@ public class GameController {
 		meta.setLore(Arrays.asList("§eFaites un click droit avec ce lit","§epour quitter la partie."));
 		leaveItem.setItemMeta(meta);
 	}
-	
-	public GameController() {
-	}
 		
 	public void joinGame(PvPKitPlayer player, Game game) {
-		if(player.isInGame())
+		if(player.isInGame()) {
 			return;
+		}	
 		player.setInGame(true);
 		game.addPlayer(player);
 		game.sendMessage(PvPKit.prefix+"§b"+player.getPlayer().getName()+" §aa rejoint la partie !");
@@ -100,6 +101,21 @@ public class GameController {
 			Bukkit.getPluginManager().registerEvents(new KitMenuListener(p.getPlayer().getUniqueId(), "§5§lChoisissez un kit", kitsFormat), PvPKit.getInstance());
 		}
 		return;
+	}
+	
+	public void dumpInGamePlayers() {
+		System.out.println("Joueurs :");
+		for(Entry<PvPKitPlayer, Game> entry : ingamePlayers.entrySet()) {
+			System.out.println("  "+entry.getKey().getPlayer().getName()+"(ig:"+entry.getKey().isInGame()+") : "+entry.getValue().getName());
+		}
+	}
+	
+	public ItemStack getKitMenuItem() {
+		return kitMenuItem;
+	}
+	
+	public ItemStack getLeaveItem() {
+		return leaveItem;
 	}
 	
 }

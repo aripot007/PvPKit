@@ -11,7 +11,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
-import fr.aripot007.pvpkit.GameController;
 import fr.aripot007.pvpkit.PvPKit;
 import fr.aripot007.pvpkit.game.Kit;
 
@@ -31,15 +30,16 @@ public class KitMenuListener implements Listener {
 	public void onInventoryClick(InventoryClickEvent e) {
 		if(e.getWhoClicked().getUniqueId().equals(player)
 			&& e.getView().getTitle().equals(invName)
+			&& e.getCurrentItem() != null
 			&& e.getCurrentItem().getType() != Material.AIR) {
 			
 			e.setCancelled(true);
-			if(e.getCurrentItem().equals(GameController.kitMenuItem) || e.getCurrentItem().equals(GameController.leaveItem))
+			if(e.getCurrentItem().equals(PvPKit.getInstance().getGameController().getKitMenuItem()) || e.getCurrentItem().equals(PvPKit.getInstance().getGameController().getLeaveItem()))
 				return;
 			Kit kit = kits[e.getSlot()];
 			Player p = (Player) e.getWhoClicked();
 			if(kit != null) {
-				PvPKit.getPvPKitPlayerManager().getPlayer(p).setKit(kit);
+				PvPKit.getInstance().getPvPKitPlayerManager().getPlayer(p).setKit(kit);
 				safeGiveKit(p, kit);
 			} else {
 				e.getWhoClicked().sendMessage(PvPKit.prefix+"§cUne erreur est survenue.");

@@ -16,7 +16,6 @@ import fr.aripot007.pvpkit.game.Kit;
 import fr.aripot007.pvpkit.manager.ArenaManager;
 import fr.aripot007.pvpkit.manager.GameManager;
 import fr.aripot007.pvpkit.manager.KitManager;
-import fr.aripot007.pvpkit.util.Messages;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -38,7 +37,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String msg, String[] args) {
 		
 		if(!(sender instanceof Player)) {
-			sender.sendMessage(Messages.getString("errors.cmd.player_only")); //$NON-NLS-1$
+			sender.sendMessage("Cette commande ne peut être exécutée que par un joueur"); 
 			return false;
 		}
 		
@@ -71,8 +70,8 @@ public class PvPKitAdminCommand implements CommandExecutor {
 			return onGameCommand(sender, cmd, msg, args);
 			
 		} else {
-			sender.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.unknown")); //$NON-NLS-1$
-			sender.sendMessage(PvPKit.prefix + Messages.getString("errors.cmd.cmd_list")); //$NON-NLS-1$
+			sender.sendMessage(PvPKit.prefix+"§cCommande inconnue !"); 
+			sender.sendMessage(PvPKit.prefix + "§cPour une liste des commandes disponibles, entrez §b/pka help"); 
 			return false;
 		}
 		return false;
@@ -116,15 +115,15 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		} else if (args[1].equalsIgnoreCase("create")) { //$NON-NLS-1$
 			
 			if(args.length == 2) { // Pas de nom précisé
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_name")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser un nom !"); 
 				p.sendMessage(PvPKit.prefix+"§cSyntaxe : /pka kit create <nom>"); //$NON-NLS-1$
 				
 			} else if(args.length > 3) { // Trop d'arguments
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.kit.no_space_in_name")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cLe nom du kit ne doit pas contenir d'espaces !"); 
 				
 			} else {
 				if(kitmg.containsKit(args[2])) { // Nom déjà pris
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.kit.name_already_exist")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+"§cUn kit avec le même nom existe déjà !"); 
 				} else {
 					kitmg.putKit(new Kit(args[2]));
 					kitmg.saveKits();
@@ -137,21 +136,21 @@ public class PvPKitAdminCommand implements CommandExecutor {
 			
 		} else if (args[1].equalsIgnoreCase("remove")) { //$NON-NLS-1$
 			if(args.length == 2) {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_kit")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser un kit !"); 
 			} else {
 				if(kitmg.containsKit(args[2])) {
 					kitmg.removeKit(args[2]);
 					kitmg.saveKits();
 					p.sendMessage(PvPKit.prefix+"§aKit §b"+args[2]+" §asupprimé avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 				} else {
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.kit.kit_does_not_exist")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+"§cCe kit n'existe pas !"); 
 				}
 			}
 			return true;
 			
 		} else if (args[1].equalsIgnoreCase("seticon")) { //$NON-NLS-1$
 			if(args.length == 2) {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_kit")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser un kit !"); 
 			} else if(kitmg.containsKit(args[2])) {
 				
 				ItemStack icon = p.getInventory().getItemInMainHand().clone();
@@ -175,16 +174,16 @@ public class PvPKitAdminCommand implements CommandExecutor {
 					p.sendMessage(PvPKit.prefix+"§aIcone du kit §b"+kit.getName()+" §adéfinie avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 					
 				} else {
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.kit.icon.no_item_in_hand")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+"§cVous devez tenir un item dans votre main !"); 
 				}
 			} else {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.kit.kit_does_not_exist")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cCe kit n'existe pas !"); 
 			}
 			
 			
 		} else if (args[1].equalsIgnoreCase("setinv")) { //$NON-NLS-1$
 			if(args.length == 2) {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_kit")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser un kit !"); 
 			} else if(kitmg.containsKit(args[2])) {
 
 				Kit kit = kitmg.getKit(args[2]);
@@ -193,11 +192,11 @@ public class PvPKitAdminCommand implements CommandExecutor {
 				p.sendMessage(PvPKit.prefix+"§aContenu du kit §b"+kit.getName()+" §adéfinie avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			} else {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.kit.kit_does_not_exist")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cCe kit n'existe pas !"); 
 			}
 
 		} else {
-			p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.unknown")); //$NON-NLS-1$
+			p.sendMessage(PvPKit.prefix+"§cCommande inconnue !"); 
 			p.sendMessage(PvPKit.prefix + "§cPour une liste des commandes disponibles, entrez &b/pka kit"); //$NON-NLS-1$
 			return false;
 		}
@@ -244,15 +243,15 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		} else if (args[1].equalsIgnoreCase("create")) { // Create //$NON-NLS-1$
 			
 			if(args.length == 2) { // Pas de nom précisé
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_name")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser un nom !"); 
 				p.sendMessage(PvPKit.prefix+"§cSyntaxe : /pka arena create <nom>"); //$NON-NLS-1$
 				
 			} else if(args.length > 3) { // Trop d'arguments
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.no_space_in_name")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cLe nom de l'arène ne doit pas contenir d'espaces !"); 
 				
 			} else {
 				if(armg.containsArena(args[2])) { // Nom déjà pris
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.name_already_exists")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+"§cUne arène avec le même nom existe déjà !"); 
 				} else {
 					armg.putArena(new Arena(args[2]));
 					armg.saveArenas();
@@ -265,21 +264,21 @@ public class PvPKitAdminCommand implements CommandExecutor {
 			
 		} else if (args[1].equalsIgnoreCase("remove")) { //$NON-NLS-1$
 			if(args.length == 2) {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_arena")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une arène !"); 
 			} else {
 				if(armg.containsArena(args[2])) {
 					armg.removeArena(args[2]);
 					armg.saveArenas();
 					p.sendMessage(PvPKit.prefix+"§aArène §b"+args[2]+" §asupprimée avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 				} else {
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.arena_does_not_exist")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+"§cCette arène n'existe pas !"); 
 				}
 			}
 			return true;
 			
 		} else if (args[1].equalsIgnoreCase("setspawn")) { //$NON-NLS-1$
 			if(args.length < 3) {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_arena")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une arène !"); 
 			} else {
 				if(armg.containsArena(args[2])) {
 					Arena arena = armg.getArena(args[2]);
@@ -287,7 +286,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 					armg.saveArenas();
 					p.sendMessage(PvPKit.prefix+"§aSpawn de l'arène §b"+args[2]+" §adéfini avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 				} else {
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.arena_does_not_exist")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+"§cCette arène n'existe pas !"); 
 				}
 				
 			}
@@ -295,7 +294,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 			
 		} else if (args[1].equalsIgnoreCase("listkit")) { //$NON-NLS-1$
 			if(args.length < 3) {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_arena")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une arène !"); 
 			} else {
 				if(armg.containsArena(args[2])) {
 					p.sendMessage("§e========[ §9"+args[2]+" - kits §e]========"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -304,31 +303,31 @@ public class PvPKitAdminCommand implements CommandExecutor {
 						p.sendMessage("§a"+s); //$NON-NLS-1$
 					p.sendMessage("§e========[ §9"+args[2]+" - kits §e]========"); //$NON-NLS-1$ //$NON-NLS-2$
 				} else {
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.arena_does_not_exist")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+"§cCette arène n'existe pas !"); 
 				}
 			}
 			return true;
 			
 		} else if (args[1].equalsIgnoreCase("addkit")) { //$NON-NLS-1$
 			if(args.length < 3) {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_arena")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une arène !"); 
 			} else {
 				if(armg.containsArena(args[2])) {
 					if(args.length < 4) {
-						p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_kit")); //$NON-NLS-1$
+						p.sendMessage(PvPKit.prefix+"§cMerci de préciser un kit !"); 
 					} else {					
 						
 						Arena arena = armg.getArena(args[2]);
 						
 						if(arena.getKits().contains(args[3])) {
-							p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.kit.already_allowed")); //$NON-NLS-1$
+							p.sendMessage(PvPKit.prefix+"§cCe kit est déjà autorisé dans cette arène !"); 
 							
 						} else if(kitmg.containsKit(args[3])) {
 							
 							Kit kit = kitmg.getKit(args[3]);
 							
 							if(!kit.isValid()) {
-								p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.kit.invalid")); //$NON-NLS-1$
+								p.sendMessage(PvPKit.prefix+"§cCe kit n'est pas valide :"); 
 								for(String s : kit.getErrors())
 									p.sendMessage("§c"+s); //$NON-NLS-1$
 								
@@ -339,22 +338,22 @@ public class PvPKitAdminCommand implements CommandExecutor {
 							}
 							
 						} else {
-							p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.kit.kit_does_not_exist")); //$NON-NLS-1$
+							p.sendMessage(PvPKit.prefix+"§cCe kit n'existe pas !"); 
 						}
 					}
 				} else {
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.arena_does_not_exist")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+"§cCette arène n'existe pas !"); 
 				}
 			}
 			return true;
 			
 		} else if (args[1].equalsIgnoreCase("removekit")) { //$NON-NLS-1$
 			if(args.length < 3) {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_arena")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une arène !"); 
 			} else {
 				if(armg.containsArena(args[2])) {
 					if(args.length < 4) {
-						p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_kit")); //$NON-NLS-1$
+						p.sendMessage(PvPKit.prefix+"§cMerci de préciser un kit !"); 
 					} else {					
 						
 						Arena arena = armg.getArena(args[2]);
@@ -364,19 +363,19 @@ public class PvPKitAdminCommand implements CommandExecutor {
 							p.sendMessage(PvPKit.prefix+"§aKit §b"+args[3]+" §cdésactivé §aavec succès dans l'arène §b"+arena.getName()+" §a!"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 						} else if(kitmg.containsKit(args[3])) {
-							p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.kit.already_disallowed")); //$NON-NLS-1$
+							p.sendMessage(PvPKit.prefix+"§cCe kit est déjà désactivé dans cette arène !"); 
 							
 						} else {
-							p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.kit.kit_does_not_exist")); //$NON-NLS-1$
+							p.sendMessage(PvPKit.prefix+"§cCe kit n'existe pas !"); 
 						}
 					}
 				} else {
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.arena_does_not_exist")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+"§cCette arène n'existe pas !"); 
 				}
 			}
 			return true;
 		} else {
-			p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.unknown")); //$NON-NLS-1$
+			p.sendMessage(PvPKit.prefix+"§cCommande inconnue !"); 
 			p.sendMessage(PvPKit.prefix + "§cPour une liste des commandes disponibles, entrez &b/pka arena"); //$NON-NLS-1$
 			return false;
 		}
@@ -424,15 +423,15 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		} else if (args[1].equalsIgnoreCase("create")) { //$NON-NLS-1$
 			
 			if(args.length == 2) { // Pas de nom précisé
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_name")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser un nom !"); 
 				p.sendMessage(PvPKit.prefix+"§cSyntaxe : /pka game create <nom>"); //$NON-NLS-1$
 				
 			} else if(args.length > 3) { // Trop d'arguments
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.no_space_in_name")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cLe nom de la partie ne doit pas contenir d'espaces !"); 
 				
 			} else {
 				if(gamemg.containsGame(args[2])) { // Nom déjà pris
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.name_already_exist")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+"§cUne partie avec le même nom existe déjà !"); 
 				} else {
 					gamemg.putGame(new Game(args[2]));
 					gamemg.saveGames();
@@ -446,24 +445,24 @@ public class PvPKitAdminCommand implements CommandExecutor {
 			
 		} else if (args[1].equalsIgnoreCase("remove")) { //$NON-NLS-1$
 			if(args.length == 2) {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_game")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une partie !"); 
 			} else {
 				if(gamemg.containsGame(args[2])) {
 					gamemg.removeGame(args[2]);
 					gamemg.saveGames();
 					p.sendMessage(PvPKit.prefix+"§aPartie §b"+args[2]+" §asupprimée avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 				} else {
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.game_does_not_exist")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+"§cCette partie n'existe pas !"); 
 				}
 			}
 			return true;
 			
 		} else if (args[1].equalsIgnoreCase("setarena")) { //$NON-NLS-1$
 			if(args.length < 3) {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_game")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une partie !"); 
 			} else if(gamemg.containsGame(args[2])) {
 				if(args.length < 4) {
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_arena")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+"§cMerci de préciser une arène !"); 
 				} else if (armg.containsArena(args[3])) {
 					Game game = gamemg.getGame(args[2]);
 					game.setArena(armg.getArena(args[3]));
@@ -471,43 +470,43 @@ public class PvPKitAdminCommand implements CommandExecutor {
 					p.sendMessage(PvPKit.prefix+"§aArène de la partie §b"+game.getName()+" §adéfinie avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 					
 				} else {
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arena.arena_does_not_exist")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+"§cCette arène n'existe pas !"); 
 				}
 					
 			} else {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.game_does_not_exist")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cCette partie n'existe pas !"); 
 			}
 			
 			
 		} else if (args[1].equalsIgnoreCase("settype")) { //$NON-NLS-1$
 			if(args.length == 2) {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_game")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une partie !"); 
 			} else if(gamemg.containsGame(args[2])) {
 				if(args.length < 4) {
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_gametype")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+"§cMerci de préciser un type de jeu ! (normal|uhc)"); 
 				} else {
 					Game game = gamemg.getGame(args[2]);
 					try {
 						GameType type = GameType.valueOf(args[3].toUpperCase());
 						game.setType(type);
 						gamemg.saveGames();
-						p.sendMessage(PvPKit.prefix+"§aType de jeu pour la partie §b"+game.getName()+" §adéfini avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
+						p.sendMessage(PvPKit.prefix+"§aType de jeu pour la partie §b"+game.getName()+" §adéfini avec succès !"); //$NON-NLS-1$ 
 					} catch (Exception e) {
-						p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.invalid_gametype")); //$NON-NLS-1$
+						p.sendMessage(PvPKit.prefix+"§cMerci de préciser un type de jeu valide ! (normal|uhc)"); 
 					}
 				}
 
 			} else {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.game_does_not_exist")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cCette partie n'existe pas !"); 
 			}
 			return true;
 
 		} else if (args[1].equalsIgnoreCase("setstatus")) { //$NON-NLS-1$
 			if(args.length == 2) {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_game")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une partie !"); 
 			} else if(gamemg.containsGame(args[2])) {
 				if(args.length < 4) {
-					p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_gamestatus")); //$NON-NLS-1$
+					p.sendMessage(PvPKit.prefix+"§cMerci de préciser un status ! (open|closed|maintenance)"); 
 				} else {
 					Game game = gamemg.getGame(args[2]);
 					try {
@@ -517,24 +516,24 @@ public class PvPKitAdminCommand implements CommandExecutor {
 							gamemg.saveGames();
 							p.sendMessage(PvPKit.prefix+"§aStatut de la partie §b"+game.getName()+" §adéfini avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
 						} else {
-							p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.status_change_denied_invalid_game")); //$NON-NLS-1$
+							p.sendMessage(PvPKit.prefix+"§cImpossible de changer le statut de la partie tant qu'elle n'est pas valide !"); 
 							p.sendMessage("§cMerci de corriger ces erreurs :");//$NON-NLS-1$
 							for(String s : game.getErrors())
 								p.sendMessage("§e"+s); //$NON-NLS-1$
 						}
 					} catch (Exception e) {
-						p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.invalid_gamestatus")); //$NON-NLS-1$
+						p.sendMessage(PvPKit.prefix+"§cMerci de préciser un status valide ! (open|closed|maintenance)"); 
 					}
 				}
 
 			} else {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.game_does_not_exist")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cCette partie n'existe pas !"); 
 			}
 			return true;
 		
 		} else if (args[1].equalsIgnoreCase("info")) { //$NON-NLS-1$
 			if(args.length == 2) {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.arg.no_game")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une partie !"); 
 			} else if(gamemg.containsGame(args[2])) {
 				
 				Game game = gamemg.getGame(args[2]);
@@ -553,12 +552,12 @@ public class PvPKitAdminCommand implements CommandExecutor {
 				p.sendMessage("§e========[ §9"+game.getName()+" §e]========"); //$NON-NLS-1$ //$NON-NLS-2$
 				
 			} else {
-				p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.game.game_does_not_exist")); //$NON-NLS-1$
+				p.sendMessage(PvPKit.prefix+"§cCette partie n'existe pas !"); 
 			}
 			return true;
 			
 		} else {
-			p.sendMessage(PvPKit.prefix+Messages.getString("errors.cmd.unknown")); //$NON-NLS-1$
+			p.sendMessage(PvPKit.prefix+"§cCommande inconnue !"); 
 			p.sendMessage(PvPKit.prefix + "§cPour une liste des commandes disponibles, entrez &b/pka game"); //$NON-NLS-1$
 			return false;
 		}

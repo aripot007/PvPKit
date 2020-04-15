@@ -3,30 +3,118 @@ package fr.aripot007.pvpkit.command;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import fr.aripot007.pvpkit.GameController;
+import fr.aripot007.pvpkit.PvPKit;
+import fr.aripot007.pvpkit.game.Game;
+import fr.aripot007.pvpkit.game.GameStatus;
+import fr.aripot007.pvpkit.game.PvPKitPlayer;
+import fr.aripot007.pvpkit.manager.GameManager;
+import fr.aripot007.pvpkit.manager.PvPKitPlayerManager;
 
 public class PvPKitCommand implements CommandExecutor {
+	
+	PvPKitPlayerManager playerManager = PvPKit.getInstance().getPvPKitPlayerManager();
+	GameManager gameManager = PvPKit.getInstance().getGameManager();
+	GameController controller = PvPKit.getInstance().getGameController();
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String msg, String[] args) {
 		
+		if(!(sender instanceof Player)) {
+			sender.sendMessage("Cette commande ne peut être exécutée que par un joueur");
+			return true;
+		}
+		
+		Player p = (Player) sender;
+		PvPKitPlayer player = playerManager.getPlayer(p);
+		
 		if(args.length > 0){
 			
 			if(args[0].equalsIgnoreCase("join")){
-				//TODO Commande join
+				
+				return onJoinCommand(player, cmd, msg, args);
 				
 			} else if(args[0].equalsIgnoreCase("leave")){
-				//TODO Commande leave
 				
-			} else if(args[0].equalsIgnoreCase("")) {
+				return onLeaveCommand(player, cmd, msg, args);
 				
-			} else if(args[0].equalsIgnoreCase("")) {
+			} else if(args[0].equalsIgnoreCase("list")) {
 				
+				return onListCommand(p, cmd, msg, args);
+				
+			} else if(args[0].equalsIgnoreCase("stat")) {
+				
+				p.sendMessage(PvPKit.prefix+"§6Coming soon !");
+				return true;
+				
+			} else {
+				p.sendMessage(PvPKit.prefix+"§cCommande inconnue !");
+				p.sendMessage("§6Commandes disponibles : §b/pk join, leave, list§e.");
+				return false;
 			}
-			
+		
 		} else {
-			
+			p.sendMessage(PvPKit.prefix+"§cMerci de préciser un argument !");
+			p.sendMessage("§6Commandes disponibles : §b/pk join, leave, list§e.");
+			return false;
 		}
-		return false;
+	}
+	
+	private boolean onJoinCommand(PvPKitPlayer player, Command cmd, String msg, String[] args) {
+		
+		if(player.isInGame()) {
+			player.getPlayer().sendMessage(PvPKit.prefix+"§cVous êtes déjà dans une partie !");
+			return false;
+		} else {
+			if(args.length < 2) {
+				player.getPlayer().sendMessage(PvPKit.prefix+"§cMerci de préciser une partie !");
+				player.getPlayer().sendMessage("§cEntrez §b/pk list §cpour une liste des parties");
+				return false;
+			} else {
+				
+				if(gameManager.containsGame(args[1])) {
+					
+					Game game = gameManager.getGame(args[1]);
+					
+					if(!game.isValid()) {
+						player.getPlayer().sendMessage(PvPKit.prefix+"§cCette partie n'est pas valide !");
+						return true;
+					} else if(!game.getStatus().equals(GameStatus.OPEN)) {
+						player.getPlayer().sendMessage(PvPKit.prefix+"§cCette partie n'est pas disponible !");
+						return true;
+					} else {
+						controller.joinGame(player, game);
+						return true;
+					}
+					
+				} else {
+					player.getPlayer().sendMessage(PvPKit.prefix+"§cCette partie n'existe pas !");
+					return true;
+				}
+			}
+		}
+	}
+	
+	private boolean onLeaveCommand(PvPKitPlayer player, Command cmd, String msg, String[] args) {
+		if(!player.isInGame()) {
+			player.getPlayer().sendMessage(PvPKit.prefix+"§cVous n'êtes pas dans une partie !");
+			return true;
+		} else {
+			controller.leaveGame(player);
+			return true;
+		}
 	}
 
+	private boolean onListCommand(Player player, Command cmd, String msg, String[] args) {
+		player.sendMessage("§e========[ §9Parties disponibles §e]========");
+		for(Game g : gameManager.getGames().values()) {
+			if(g.isValid())
+				player.sendMessage("  §b"+g.getName());
+		}
+		player.sendMessage("§e========[ §9Parties disponibles §e]========");
+		return true;
+	}
+	
 }

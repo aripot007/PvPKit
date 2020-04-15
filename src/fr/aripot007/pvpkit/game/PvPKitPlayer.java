@@ -17,6 +17,7 @@ public class PvPKitPlayer {
 		this.kills = 0;
 		this.deaths = 0;
 		this.killstreak = 0;
+		this.inGame = false;
 	}
 	
 	public PvPKitPlayer(Player player, int kills, int deaths, int killstreak) {
@@ -24,6 +25,7 @@ public class PvPKitPlayer {
 		this.kills = kills;
 		this.deaths = deaths;
 		this.killstreak = killstreak;
+		this.inGame = false;
 	}
 
 	

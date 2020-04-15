@@ -7,6 +7,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -21,8 +22,8 @@ import fr.aripot007.pvpkit.manager.PvPKitPlayerManager;
 
 public class GameControllerListener implements Listener {
 	
-	PvPKitPlayerManager playerManager = PvPKit.getPvPKitPlayerManager();
-	GameController controller =PvPKit.getGameController();
+	PvPKitPlayerManager playerManager = PvPKit.getInstance().getPvPKitPlayerManager();
+	GameController controller =PvPKit.getInstance().getGameController();
 
 	@EventHandler
 	public void onQuit(PlayerQuitEvent event) {
@@ -30,6 +31,11 @@ public class GameControllerListener implements Listener {
 		if(p.isInGame())
 			controller.leaveGame(p);
 		playerManager.removePlayer(event.getPlayer());
+	}
+	
+	@EventHandler
+	public void onJoin(PlayerJoinEvent event) {
+		playerManager.registerPlayer(event.getPlayer());
 	}
 	
 	@EventHandler
@@ -41,6 +47,7 @@ public class GameControllerListener implements Listener {
 		}
 	}
 	
+	@EventHandler
 	public void onDeath(PlayerDeathEvent event) {
 		PvPKitPlayer victim = playerManager.getPlayer(event.getEntity().getPlayer());
 		if(victim.isInGame()) {
@@ -148,6 +155,7 @@ public class GameControllerListener implements Listener {
 		return;
 	}
 	
+	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
 		PvPKitPlayer p = playerManager.getPlayer(event.getPlayer());
 		if(p.isInGame()) {
@@ -155,12 +163,15 @@ public class GameControllerListener implements Listener {
 		}
 	}
 	
+	@EventHandler
 	public void onRightClick(PlayerInteractEvent event) {
+		if(event.getItem() != null && event.getItem().getType() == Material.AIR)
+			return;
 		PvPKitPlayer p = playerManager.getPlayer(event.getPlayer());
 		if(p.isInGame()) {
-			if(event.getItem().equals(GameController.kitMenuItem)) {
-				
-			} else if(event.getItem().equals(GameController.leaveItem)) {
+			if(event.getItem().equals(controller.getKitMenuItem())) {
+				controller.openKitMenu(p);
+			} else if(event.getItem().equals(controller.getLeaveItem())) {
 				controller.leaveGame(p);
 			}
 		}
