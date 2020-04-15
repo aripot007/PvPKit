@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -174,6 +175,13 @@ public class GameControllerListener implements Listener {
 			} else if(event.getItem().equals(controller.getLeaveItem())) {
 				controller.leaveGame(p);
 			}
+		}
+	}
+	
+	public void onItemDrop(PlayerDropItemEvent event) {
+		PvPKitPlayer p = playerManager.getPlayer(event.getPlayer());
+		if(p.isInGame()) {
+			event.setCancelled(true);
 		}
 	}
 	
