@@ -360,6 +360,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 						
 						if(arena.getKits().contains(args[3])) {
 							arena.removeKit(args[3]);
+							armg.saveArenas();
 							p.sendMessage(PvPKit.prefix+"§aKit §b"+args[3]+" §cdésactivé §aavec succès dans l'arène §b"+arena.getName()+" §a!"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 						} else if(kitmg.containsKit(args[3])) {
