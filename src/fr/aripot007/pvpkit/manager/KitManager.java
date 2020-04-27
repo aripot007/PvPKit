@@ -48,6 +48,7 @@ public class KitManager {
 			log.severe("Erreur lors de la sauvegarde des kits :");
 			e.printStackTrace();
 		}
+		loadKits();
 	}
 
 	public Kit loadKit(String name) {
