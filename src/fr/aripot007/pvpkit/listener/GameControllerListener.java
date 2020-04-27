@@ -178,6 +178,7 @@ public class GameControllerListener implements Listener {
 		}
 	}
 	
+	@EventHandler
 	public void onItemDrop(PlayerDropItemEvent event) {
 		PvPKitPlayer p = playerManager.getPlayer(event.getPlayer());
 		if(p.isInGame()) {
