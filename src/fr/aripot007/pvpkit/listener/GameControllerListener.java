@@ -1,10 +1,15 @@
 package fr.aripot007.pvpkit.listener;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -184,6 +189,66 @@ public class GameControllerListener implements Listener {
 		if(p.isInGame()) {
 			event.setCancelled(true);
 		}
+	}
+	
+	@EventHandler
+	public void onPvP(EntityDamageByEntityEvent event) {
+		if(event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
+			
+			PvPKitPlayer attacker = playerManager.getPlayer((Player) event.getDamager());
+			PvPKitPlayer victim = playerManager.getPlayer((Player) event.getEntity());
+			
+			if(victim.isInGame() && attacker.isInGame()) {
+				
+				if(attacker.getKit() == null) {
+					
+					event.setCancelled(true);
+					attacker.getPlayer().teleport(controller.getGame(attacker).getArena().getSpawn());
+					attacker.getPlayer().sendMessage(PvPKit.prefix+"§cVous devez choisir un kit avant de pvp !");
+					
+				} else if (victim.getKit() == null) {
+					
+					event.setCancelled(true);
+					victim.getPlayer().teleport(controller.getGame(victim).getArena().getSpawn());
+					victim.getPlayer().sendMessage(PvPKit.prefix+"§cVous devez choisir un kit avant de pvp !");
+					
+				}
+				
+				return;
+			}
+			
+		}
+	}
+
+	@EventHandler
+	public void onFoodChange(FoodLevelChangeEvent event) {
+		
+		if(!(event.getEntity() instanceof Player))
+			return;
+		
+		Player p = (Player) event.getEntity();
+		
+		if(playerManager.getPlayer(p).isInGame()) {
+			event.setCancelled(true);
+			event.setFoodLevel(20);
+			p.setSaturation(20);
+		}
+		
+	}
+	
+	@EventHandler
+	public void onRegen(EntityRegainHealthEvent event) {
+		if(!(event.getEntity() instanceof Player))
+			return;
+		
+		Player p = (Player) event.getEntity();
+		
+		if(playerManager.getPlayer(p).isInGame() && (event.getRegainReason().equals(RegainReason.SATIATED) || event.getRegainReason().equals(RegainReason.EATING))) {
+			
+			event.setCancelled(true);
+			
+		}
+		
 	}
 	
 }
