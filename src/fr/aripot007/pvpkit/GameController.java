@@ -71,7 +71,7 @@ public class GameController {
 			game.sendMessage(PvPKit.prefix+"§b"+player.getPlayer().getName()+" §ca quitté la partie !");
 			game.removePlayer(player);
 		}
-		player.getPlayer().performCommand("/spawn");
+		player.getPlayer().performCommand("spawn");
 	}
 	
 	public Game getGame(PvPKitPlayer p) {
