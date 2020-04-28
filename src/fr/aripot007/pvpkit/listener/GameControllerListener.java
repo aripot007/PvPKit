@@ -25,11 +25,14 @@ import fr.aripot007.pvpkit.game.Game;
 import fr.aripot007.pvpkit.game.GameType;
 import fr.aripot007.pvpkit.game.PvPKitPlayer;
 import fr.aripot007.pvpkit.manager.PvPKitPlayerManager;
+import fr.aripot007.pvpkit.manager.StatsScoreboardManager;
 
 public class GameControllerListener implements Listener {
 	
 	PvPKitPlayerManager playerManager = PvPKit.getInstance().getPvPKitPlayerManager();
 	GameController controller =PvPKit.getInstance().getGameController();
+	StatsScoreboardManager statManager = PvPKit.getInstance().getScoreboardManager();
+	
 
 	@EventHandler
 	public void onQuit(PlayerQuitEvent event) {
@@ -77,11 +80,14 @@ public class GameControllerListener implements Listener {
 					if(killstreak > 0 && (killstreak % 10 == 0 || killstreak == 5)) {
 						game.sendMessage(PvPKit.prefix+"§b"+killer.getPlayer().getName()+" §6a fait une série de §c"+killstreak+" §6kills !");
 					}
+					statManager.showScoreboard(victim);
+					statManager.showScoreboard(killer);
 				} else {
 					return;
 				}
 			} else {
 				victim.addDeath();
+				statManager.showScoreboard(victim);
 				DamageCause cause = event.getEntity().getLastDamageCause().getCause();
 				switch(cause) {
 				case BLOCK_EXPLOSION:

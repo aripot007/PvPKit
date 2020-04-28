@@ -20,6 +20,7 @@ import fr.aripot007.pvpkit.game.Kit;
 import fr.aripot007.pvpkit.game.PvPKitPlayer;
 import fr.aripot007.pvpkit.listener.KitMenuListener;
 import fr.aripot007.pvpkit.manager.KitManager;
+import fr.aripot007.pvpkit.manager.StatsScoreboardManager;
 import fr.aripot007.pvpkit.util.GUIUtil;
 
 public class GameController {
@@ -28,10 +29,12 @@ public class GameController {
 	public final ItemStack kitMenuItem;
 	public final ItemStack leaveItem;
 	
+	private StatsScoreboardManager statManager;
 	private KitManager kitManager = PvPKit.getInstance().getKitManager();
 	
 	
 	public GameController() {
+		statManager = PvPKit.getInstance().getScoreboardManager();
 		kitMenuItem = new ItemStack(Material.CHEST);
 		ItemMeta meta = kitMenuItem.getItemMeta();
 		meta.setDisplayName("§5§lChoisir un kit");
@@ -57,6 +60,7 @@ public class GameController {
 		p.teleport(game.getArena().getSpawn());
 		p.getInventory().setContents(getMenuContent());
 		p.setGameMode(GameMode.ADVENTURE);
+		statManager.showScoreboard(player);
 		player.getPlayer().getActivePotionEffects().clear();
 		player.getPlayer().setHealth(20d);
 	}
@@ -64,7 +68,9 @@ public class GameController {
 	public void leaveGame(PvPKitPlayer player) {
 		if(!player.isInGame())
 			return;
+		
 		Game game = ingamePlayers.remove(player);
+		statManager.hideScoreboard(player);
 		player.setKit(null);
 		player.getPlayer().setGameMode(GameMode.SURVIVAL);
 		player.getPlayer().getInventory().clear();
