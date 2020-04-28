@@ -46,18 +46,24 @@ public class PvPKitCommand implements CommandExecutor {
 				
 			} else if(args[0].equalsIgnoreCase("stat")) {
 				
-				p.sendMessage(PvPKit.prefix+"§6Coming soon !");
+				p.sendMessage("§e====[ §9PvPKit - Stats §e]====");
+				p.sendMessage("\n §6Kills : §b"+player.getKills());
+				p.sendMessage(" §6Morts : §b"+player.getDeaths());
+				p.sendMessage(" §6Ratio : §b"+1.0f * player.getKills() / (player.getDeaths() != 0 ? player.getDeaths() : 1));
+				p.sendMessage(" §6Killstreak : §b"+player.getKillstreak());
+				p.sendMessage(" §6Meilleur killstreak : §b"+player.getBestKillStreak());
+				p.sendMessage("\n§e====[ §9PvPKit - Stats §e]====");
 				return true;
 				
 			} else {
 				p.sendMessage(PvPKit.prefix+"§cCommande inconnue !");
-				p.sendMessage("§6Commandes disponibles : §b/pk join, leave, list§e.");
+				p.sendMessage("§6Commandes disponibles : §b/pk join, leave, list, stat§e.");
 				return false;
 			}
 		
 		} else {
 			p.sendMessage(PvPKit.prefix+"§cMerci de préciser un argument !");
-			p.sendMessage("§6Commandes disponibles : §b/pk join, leave, list§e.");
+			p.sendMessage("§6Commandes disponibles : §b/pk join, leave, list, stat§e.");
 			return false;
 		}
 	}
