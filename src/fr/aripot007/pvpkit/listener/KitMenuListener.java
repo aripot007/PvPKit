@@ -70,6 +70,7 @@ public class KitMenuListener implements Listener {
 				p.getOpenInventory().close();
 				p.getInventory().setContents(kit.getInventoryContent());
 				p.updateInventory();
+				PvPKit.getInstance().getScoreboardManager().showScoreboard(PvPKit.getInstance().getPvPKitPlayerManager().getPlayer(p)); // Update player scoreboard
 			}
 			
 		}, 1L);
