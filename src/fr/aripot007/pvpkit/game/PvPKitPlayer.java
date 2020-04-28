@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 public class PvPKitPlayer {
 	
 	private Player player;
-	private int kills, deaths, killstreak;
+	private int kills, deaths, killstreak, bestKs;
 	private Kit kit;
 	private boolean inGame;
 	
@@ -17,14 +17,16 @@ public class PvPKitPlayer {
 		this.kills = 0;
 		this.deaths = 0;
 		this.killstreak = 0;
+		this.bestKs = 0;
 		this.inGame = false;
 	}
 	
-	public PvPKitPlayer(Player player, int kills, int deaths, int killstreak) {
+	public PvPKitPlayer(Player player, int kills, int deaths, int killstreak, int bestKillstreak) {
 		this.player = player;
 		this.kills = kills;
 		this.deaths = deaths;
 		this.killstreak = killstreak;
+		this.bestKs = bestKillstreak;
 		this.inGame = false;
 	}
 
@@ -40,6 +42,8 @@ public class PvPKitPlayer {
 	public void addKill() {
 		kills++;
 		killstreak++;
+		if(killstreak > bestKs)
+			bestKs = killstreak;
 	}
 	
 	public void addDeath() {
@@ -85,12 +89,20 @@ public class PvPKitPlayer {
 		this.kit = kit;
 	}
 
+	public int getBestKillStreak() {
+		return bestKs;
+	}
+	
+	public void setBestKillStreak(int best) {
+		bestKs = best;
+	}
 	
 	public Map<String, Object> serialize() {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("kills", kills);
 		result.put("deaths", deaths);
 		result.put("killstreak", killstreak);
+		result.put("best-killstreak", bestKs);
 		return result;
 	}
 	
@@ -98,7 +110,9 @@ public class PvPKitPlayer {
 		int kills = (int) map.getOrDefault("kills", 0);
 		int deaths = (int) map.getOrDefault("deaths", 0);
 		int killstreak = (int) map.getOrDefault("killstreak", 0);
-		return new PvPKitPlayer(p, kills, deaths, killstreak);
+		int bestKs = (int) map.getOrDefault("best-killstreak", 0);
+		return new PvPKitPlayer(p, kills, deaths, killstreak, bestKs);
 	}
+
 	
 }
