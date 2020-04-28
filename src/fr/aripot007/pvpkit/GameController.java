@@ -57,6 +57,8 @@ public class GameController {
 		p.teleport(game.getArena().getSpawn());
 		p.getInventory().setContents(getMenuContent());
 		p.setGameMode(GameMode.ADVENTURE);
+		player.getPlayer().getActivePotionEffects().clear();
+		player.getPlayer().setHealth(20d);
 	}
 	
 	public void leaveGame(PvPKitPlayer player) {
@@ -71,6 +73,8 @@ public class GameController {
 			game.sendMessage(PvPKit.prefix+"§b"+player.getPlayer().getName()+" §ca quitté la partie !");
 			game.removePlayer(player);
 		}
+		player.getPlayer().getActivePotionEffects().clear();
+		player.getPlayer().setHealth(20d);
 		player.getPlayer().performCommand("spawn");
 	}
 	
