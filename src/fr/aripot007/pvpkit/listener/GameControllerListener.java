@@ -1,5 +1,9 @@
 package fr.aripot007.pvpkit.listener;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,14 +22,17 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
 
 import fr.aripot007.pvpkit.GameController;
 import fr.aripot007.pvpkit.PvPKit;
 import fr.aripot007.pvpkit.game.Game;
 import fr.aripot007.pvpkit.game.GameType;
+import fr.aripot007.pvpkit.game.Kit;
 import fr.aripot007.pvpkit.game.PvPKitPlayer;
 import fr.aripot007.pvpkit.manager.PvPKitPlayerManager;
 import fr.aripot007.pvpkit.manager.StatsScoreboardManager;
+import net.minecraft.server.v1_14_R1.EntityFox.i;
 
 public class GameControllerListener implements Listener {
 	
@@ -77,7 +84,9 @@ public class GameControllerListener implements Listener {
 					game.sendMessage(PvPKit.prefix+"§b"+victim.getPlayer().getName()+" §6s'est fait tué par §b"+killer.getPlayer().getName()+" §6!");
 					killer.addKill();
 					int killstreak = killer.getKillstreak();
-					if(killstreak > 0 && (killstreak % 10 == 0 || killstreak == 5)) {
+					if(killer.getKit().isRegiven() && killstreak % killer.getKit().getRegiveKills() == 0)
+						safeRegiveKit(killer.getPlayer(), killer.getKit());
+					if(killstreak > 0 && (killstreak % 10 == 0 || (killstreak % 5 == 0 && killstreak < 30))) {
 						game.sendMessage(PvPKit.prefix+"§b"+killer.getPlayer().getName()+" §6a fait une série de §c"+killstreak+" §6kills !");
 					}
 					statManager.showScoreboard(victim);
@@ -255,6 +264,40 @@ public class GameControllerListener implements Listener {
 			
 		}
 		
+	}
+	
+	private void safeRegiveKit(Player p, Kit kit) {
+		Bukkit.getScheduler().runTaskLater(PvPKit.getInstance(), new Runnable() {
+
+			@Override
+			public void run() {
+				ItemStack[] playerInv = p.getInventory().getContents();
+				for(ItemStack item : kit.getInventoryContent()) {
+					if(item != null && !item.getType().isAir() && !playerHasItem(playerInv, item))
+						p.getInventory().addItem(item);
+				}
+				for(PotionEffect effect : kit.getEffects())
+					if(!p.getActivePotionEffects().contains(effect))
+						p.addPotionEffect(effect);
+				p.updateInventory();
+			}
+			
+		}, 1L);
+	}
+	
+	private boolean playerHasItem(ItemStack[] inventory, ItemStack item) {
+		List<ItemStack> inv = Arrays.asList(inventory);
+		if(inv.contains(item))
+			return true;
+		
+		for(ItemStack i : inv) {
+			if(i.isSimilar(item))
+				return true;
+			if(i.getType().equals(item.getType()))
+				return true;
+		}
+		
+		return false;
 	}
 	
 }

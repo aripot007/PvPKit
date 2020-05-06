@@ -9,11 +9,16 @@ import java.util.Map.Entry;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 @SerializableAs("Kit")
 public class Kit implements ConfigurationSerializable {
 
 	private String name;
+	private List<PotionEffect> effects = new ArrayList<PotionEffect>();
+	private boolean regiven = false;
+	private byte regiveKills = 3;
 	private ItemStack icon;
 	private ItemStack[] inventoryContent;
 	
@@ -21,10 +26,13 @@ public class Kit implements ConfigurationSerializable {
 		this.name = name;
 	}
 
-	public Kit(String name, ItemStack icon, ItemStack[] content) {
+	public Kit(String name, ItemStack icon, ItemStack[] content, List<PotionEffect> effects, boolean regiven, byte regiveKills) {
 		this.name = name;
 		this.icon = icon;
 		this.inventoryContent = content;
+		this.effects = effects;
+		this.regiven = regiven;
+		this.regiveKills = regiveKills;
 	}
 	
 	public boolean isValid() {
@@ -64,13 +72,53 @@ public class Kit implements ConfigurationSerializable {
 		this.inventoryContent = inventoryContent;
 	}
 
+	public List<PotionEffect> getEffects() {
+		return effects;
+	}
 	
+	public void setEffects(List<PotionEffect> effects) {
+		this.effects = effects;
+	}
+	
+	public void addEffect(PotionEffect effect) {
+		effects.add(effect);
+	}
+	
+	public void removeEffect(PotionEffectType etype) {
+		for(PotionEffect e : effects) {
+			if(e.getType().equals(etype)) {
+				effects.remove(e);
+				return;
+			}
+		}
+	}
+
+	
+	public boolean isRegiven() {
+		return regiven;
+	}
+
+	public void setRegiven(boolean regiven) {
+		this.regiven = regiven;
+	}
+
+	public byte getRegiveKills() {
+		return regiveKills;
+	}
+
+	public void setRegiveKills(byte regiveKills) {
+		this.regiveKills = regiveKills;
+	}
+
 	@Override
 	public Map<String, Object> serialize() {
 		
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, Object> inv = new HashMap<String, Object>();
 		result.put("name", name); //$NON-NLS-1$
+		result.put("effects", effects);
+		result.put("regiven", regiven);
+		result.put("regive-kills", regiveKills);
 		result.put("icon", icon); //$NON-NLS-1$
 		if(inventoryContent != null) {
 			for(int i = 0; i < inventoryContent.length; i++) {
@@ -95,7 +143,10 @@ public class Kit implements ConfigurationSerializable {
 			}
 		}
 		String name = (String) map.get("name"); //$NON-NLS-1$
-		return new Kit(name, icon, content);
+		List<PotionEffect> effects = (List<PotionEffect>) map.getOrDefault("effects", null);
+		boolean regiven = (boolean) map.getOrDefault("regiven", false);
+		byte regivenKills = (byte) map.getOrDefault("regiven-kills", 3);
+		return new Kit(name, icon, content, effects, regiven, regivenKills);
 	}
 	
 }

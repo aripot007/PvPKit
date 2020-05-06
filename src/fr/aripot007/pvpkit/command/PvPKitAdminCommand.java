@@ -1,11 +1,16 @@
 package fr.aripot007.pvpkit.command;
 
+import java.util.List;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 
 import fr.aripot007.pvpkit.PvPKit;
 import fr.aripot007.pvpkit.game.Arena;
@@ -46,6 +51,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		} else if(args[0].equalsIgnoreCase("dumpdata")){
 			
 			System.out.println("Parties :");
+			sender.sendMessage(PvPKit.prefix+"§cMerci de préciser un argument !\n§eCommandes disponibles : §b/pka help/kit/arena/game");
 			
 			for(Game g : gamemg.getGames().values()) {
 				System.out.println("Partie : "+g.getName());
@@ -88,6 +94,9 @@ public class PvPKitAdminCommand implements CommandExecutor {
 			p.sendMessage("§b/pka kit remove <kit>"); //$NON-NLS-1$
 			p.sendMessage("§b/pka kit setinv <kit>"); //$NON-NLS-1$
 			p.sendMessage("§b/pka kit seticon <kit> [nom]"); //$NON-NLS-1$
+			p.sendMessage("§b/pka kit effects <kit>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka kit addeffect <kit> <potion effect> [level] [duration]"); //$NON-NLS-1$
+			p.sendMessage("§b/pka kit deleffect <kit> <potion effect>"); //$NON-NLS-1$
 			p.sendMessage("§e========[ §9/pka kit §e]========"); //$NON-NLS-1$
 			return true;
 				
@@ -195,6 +204,123 @@ public class PvPKitAdminCommand implements CommandExecutor {
 				p.sendMessage(PvPKit.prefix+"§cCe kit n'existe pas !"); 
 			}
 
+		} else if(args[1].equalsIgnoreCase("effects")) {
+			
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser un kit !"); 
+			} else if(kitmg.containsKit(args[2])) {
+
+				Kit kit = kitmg.getKit(args[2]);
+				List<PotionEffect> effects = kit.getEffects();
+				p.sendMessage("§e========[ §9"+kit.getName()+" - effets §e]========");
+				if(effects.isEmpty()) {
+					p.sendMessage("§cCe kit n'& aucun effet de potion actif.");
+				} else {
+					for(PotionEffect ef : effects) {
+						p.sendMessage("  §a- "+ef.getType().getName().toLowerCase()+" §2("+(ef.getDuration() == Integer.MAX_VALUE ? 9999 : ef.getDuration() / 20)+"s / lvl "+ef.getAmplifier()+")");
+					}
+				}
+				p.sendMessage("§e========[ §9"+kit.getName()+" - effets §e]========");
+				
+			} else {
+				p.sendMessage(PvPKit.prefix+"§cCe kit n'existe pas !"); 
+			}
+			
+		} else if(args[1].equalsIgnoreCase("addeffect")) {
+			
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser un kit !\n§cSyntaxe : §b/pka kit addeffect <kit> <effet> [niveau] [durée]"); 
+			} else if(kitmg.containsKit(args[2])) {
+
+				Kit kit = kitmg.getKit(args[2]);
+				
+				if(args.length < 4) { // No effect specified
+					p.sendMessage(PvPKit.prefix+"§cMerci de préciser un effet de potion !\n§cSyntaxe : §b/pka kit addeffect <kit> <effet> [niveau] [durée]");
+				} else {
+					PotionEffectType etype;
+					try {
+						etype = PotionEffectType.getByName(args[3].toUpperCase());
+					} catch(Exception e) {
+						p.sendMessage(PvPKit.prefix+"§cMerci de préciser une potion valide !");
+						String available = "";
+						for(PotionEffectType type : PotionEffectType.values()) {
+							available += ", "+type.getName().toLowerCase();
+						}
+						available = available.substring(2);
+						p.sendMessage("§6Effets disponibles : §e"+available);
+						return true;
+					}
+					
+					for(PotionEffect ef : kit.getEffects()) {
+						if(ef.getType().equals(etype)) {
+							p.sendMessage(PvPKit.prefix+"§cLe kit contient déjà cet effet de potion !");
+							return true;
+						}
+					}
+					
+					int duration = Integer.MAX_VALUE;
+					int level = 1;
+					
+					try {
+						if(args.length > 4)
+							level = Integer.parseInt(args[4]);
+						if(args.length > 5)
+							duration = Integer.parseInt(args[5]) * 20;
+					} catch(Exception e) {
+						p.sendMessage(PvPKit.prefix+"§cMerci d'entrer un nombre valide !\n§cSyntaxe : §b/pka kit addeffect <kit> <effet> [niveau] [durée]");
+					}
+					
+					kit.addEffect(new PotionEffect(etype, duration, level, false, false));
+					p.sendMessage(PvPKit.prefix+"§aEffet §b"+args[3]+"§a ajouté avec succès au kit §b"+kit.getName()+"§a !");
+					
+				}
+				
+			} else {
+				p.sendMessage(PvPKit.prefix+"§cCe kit n'existe pas !"); 
+			}
+			
+		} else if(args[1].equalsIgnoreCase("deleffect")) {
+			
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser un kit !\n§cSyntaxe : §b/pka kit deleffect <kit> <effet>"); 
+			} else if(kitmg.containsKit(args[2])) {
+
+				Kit kit = kitmg.getKit(args[2]);
+				
+				if(args.length < 4) { // No effect specified
+					p.sendMessage(PvPKit.prefix+"§cMerci de préciser un effet de potion !\n§cSyntaxe : §b/pka kit deleffect <kit> <effet>");
+				} else {
+					PotionEffectType etype;
+					try {
+						etype = PotionEffectType.getByName(args[3].toUpperCase());
+					} catch(Exception e) {
+						p.sendMessage(PvPKit.prefix+"§cMerci de préciser une potion valide !");
+						String available = "";
+						for(PotionEffectType type : PotionEffectType.values()) {
+							available += ", "+type.getName().toLowerCase();
+						}
+						available = available.substring(2);
+						p.sendMessage("§6Effets disponibles : §e"+available);
+						return true;
+					}
+					
+					for(PotionEffect ef : kit.getEffects()) {
+						if(ef.getType().equals(etype)) {
+							kit.removeEffect(etype);
+							p.sendMessage(PvPKit.prefix+"§aEffet §b"+args[3]+"§a retiré avec succès du kit §b"+kit.getName()+"§a !");
+							return true;
+						}
+					}
+					
+					p.sendMessage(PvPKit.prefix+"§cLe kit ne contient pas cet effet de potion !");
+					return true;
+					
+				}
+				
+			} else {
+				p.sendMessage(PvPKit.prefix+"§cCe kit n'existe pas !"); 
+			}
+			
 		} else {
 			p.sendMessage(PvPKit.prefix+"§cCommande inconnue !"); 
 			p.sendMessage(PvPKit.prefix + "§cPour une liste des commandes disponibles, entrez &b/pka kit"); //$NON-NLS-1$

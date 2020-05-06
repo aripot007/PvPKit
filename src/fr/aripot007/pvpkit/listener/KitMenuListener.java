@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.potion.PotionEffect;
 
 import fr.aripot007.pvpkit.PvPKit;
 import fr.aripot007.pvpkit.game.Kit;
@@ -69,6 +70,8 @@ public class KitMenuListener implements Listener {
 			public void run() {
 				p.getOpenInventory().close();
 				p.getInventory().setContents(kit.getInventoryContent());
+				for(PotionEffect effect : kit.getEffects())
+					p.addPotionEffect(effect);
 				p.updateInventory();
 				PvPKit.getInstance().getScoreboardManager().showScoreboard(PvPKit.getInstance().getPvPKitPlayerManager().getPlayer(p)); // Update player scoreboard
 			}
