@@ -26,7 +26,9 @@ public class ArenaManager {
 		arFile = new File(Bukkit.getPluginManager().getPlugin("PvPKit").getDataFolder(), "arenas.yml");
 		arenas = new HashMap<String, Arena>();
 		loadArenas();
-	}
+		//Trying to fix the arena spawn not loading on startup but loading during a /reload. Not tested yet, maybe there's a better solution ¯\_(ツ)_/¯
+		loadArenas(); 
+		}
 	
 	public void loadArenas() {
 		arData = YamlConfiguration.loadConfiguration(arFile);
