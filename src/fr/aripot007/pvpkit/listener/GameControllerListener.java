@@ -32,7 +32,6 @@ import fr.aripot007.pvpkit.game.Kit;
 import fr.aripot007.pvpkit.game.PvPKitPlayer;
 import fr.aripot007.pvpkit.manager.PvPKitPlayerManager;
 import fr.aripot007.pvpkit.manager.StatsScoreboardManager;
-import net.minecraft.server.v1_14_R1.EntityFox.i;
 
 public class GameControllerListener implements Listener {
 	
