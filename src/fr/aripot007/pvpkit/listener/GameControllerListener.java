@@ -69,6 +69,11 @@ public class GameControllerListener implements Listener {
 			PvPKitPlayer killer = playerManager.getPlayer(event.getEntity().getKiller());
 			event.setDroppedExp(0);
 			event.setDeathMessage(null);
+			int apples = 0;
+			for(ItemStack i : event.getDrops()) {
+				if (i.getType().equals(Material.GOLDEN_APPLE))
+					apples++;
+			}
 			event.getDrops().clear();
 			Game game = controller.getGame(victim);
 			
@@ -76,7 +81,7 @@ public class GameControllerListener implements Listener {
 				if(killer.isInGame()) {
 					victim.addDeath();
 					if(game.getType().equals(GameType.UHC)) {
-						event.getDrops().add(new ItemStack(Material.GOLDEN_APPLE));
+						event.getDrops().add(new ItemStack(Material.GOLDEN_APPLE, 1 + apples));
 					} else {
 						killer.getPlayer().setHealth(20.0);
 					}
