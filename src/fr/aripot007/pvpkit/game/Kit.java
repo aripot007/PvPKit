@@ -18,7 +18,7 @@ public class Kit implements ConfigurationSerializable {
 	private String name;
 	private List<PotionEffect> effects = new ArrayList<PotionEffect>();
 	private boolean regiven = false;
-	private byte regiveKills = 3;
+	private int regiveKills = 3;
 	private ItemStack icon;
 	private ItemStack[] inventoryContent;
 	
@@ -26,7 +26,7 @@ public class Kit implements ConfigurationSerializable {
 		this.name = name;
 	}
 
-	public Kit(String name, ItemStack icon, ItemStack[] content, List<PotionEffect> effects, boolean regiven, byte regiveKills) {
+	public Kit(String name, ItemStack icon, ItemStack[] content, List<PotionEffect> effects, boolean regiven, int regiveKills) {
 		this.name = name;
 		this.icon = icon;
 		this.inventoryContent = content;
@@ -102,7 +102,7 @@ public class Kit implements ConfigurationSerializable {
 		this.regiven = regiven;
 	}
 
-	public byte getRegiveKills() {
+	public int getRegiveKills() {
 		return regiveKills;
 	}
 
@@ -143,9 +143,11 @@ public class Kit implements ConfigurationSerializable {
 			}
 		}
 		String name = (String) map.get("name"); //$NON-NLS-1$
-		List<PotionEffect> effects = (List<PotionEffect>) map.getOrDefault("effects", null);
+		List<PotionEffect> effects = (List<PotionEffect>) map.getOrDefault("effects", new ArrayList<PotionEffect>());
+		if(effects == null)
+			effects = new ArrayList<PotionEffect>();
 		boolean regiven = (boolean) map.getOrDefault("regiven", false);
-		byte regivenKills = (byte) map.getOrDefault("regiven-kills", 3);
+		int regivenKills = (Integer) map.getOrDefault("regiven-kills", 3);
 		return new Kit(name, icon, content, effects, regiven, regivenKills);
 	}
 	

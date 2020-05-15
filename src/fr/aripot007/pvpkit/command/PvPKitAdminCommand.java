@@ -223,10 +223,10 @@ public class PvPKitAdminCommand implements CommandExecutor {
 				if(args.length < 4) { // No effect specified
 					p.sendMessage(PvPKit.prefix+"§cMerci de préciser un effet de potion !\n§cSyntaxe : §b/pka kit addeffect <kit> <effet> [niveau] [durée]");
 				} else {
-					PotionEffectType etype;
-					try {
-						etype = PotionEffectType.getByName(args[3].toUpperCase());
-					} catch(Exception e) {
+					
+					PotionEffectType etype = PotionEffectType.getByName(args[3].toUpperCase());
+					
+					if(etype == null) {
 						p.sendMessage(PvPKit.prefix+"§cMerci de préciser une potion valide !");
 						String available = "";
 						for(PotionEffectType type : PotionEffectType.values()) {
@@ -237,10 +237,12 @@ public class PvPKitAdminCommand implements CommandExecutor {
 						return true;
 					}
 					
-					for(PotionEffect ef : kit.getEffects()) {
-						if(ef.getType().equals(etype)) {
-							p.sendMessage(PvPKit.prefix+"§cLe kit contient déjà cet effet de potion !");
-							return true;
+					if(!kit.getEffects().isEmpty()) {
+						for(PotionEffect ef : kit.getEffects()) {
+							if(ef.getType().equals(etype)) {
+								p.sendMessage(PvPKit.prefix+"§cLe kit contient déjà cet effet de potion !");
+								return true;
+							}
 						}
 					}
 					
@@ -257,6 +259,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 					}
 					
 					kit.addEffect(new PotionEffect(etype, duration, level, false, false));
+					kitmg.saveKits();
 					p.sendMessage(PvPKit.prefix+"§aEffet §b"+args[3]+"§a ajouté avec succès au kit §b"+kit.getName()+"§a !");
 					
 				}
@@ -293,6 +296,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 					for(PotionEffect ef : kit.getEffects()) {
 						if(ef.getType().equals(etype)) {
 							kit.removeEffect(etype);
+							kitmg.saveKits();
 							p.sendMessage(PvPKit.prefix+"§aEffet §b"+args[3]+"§a retiré avec succès du kit §b"+kit.getName()+"§a !");
 							return true;
 						}
