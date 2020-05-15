@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
 
 import fr.aripot007.pvpkit.game.Game;
 import fr.aripot007.pvpkit.game.Kit;
@@ -61,8 +62,9 @@ public class GameController {
 		p.getInventory().setContents(getMenuContent());
 		p.setGameMode(GameMode.ADVENTURE);
 		statManager.showScoreboard(player);
-		player.getPlayer().getActivePotionEffects().clear();
-		player.getPlayer().setHealth(20d);
+		for (PotionEffect effect : p.getActivePotionEffects())
+		    p.removePotionEffect(effect.getType());
+		p.setHealth(20d);
 	}
 	
 	public void leaveGame(PvPKitPlayer player) {
@@ -79,7 +81,8 @@ public class GameController {
 			game.sendMessage(PvPKit.prefix+"§b"+player.getPlayer().getName()+" §ca quitté la partie !");
 			game.removePlayer(player);
 		}
-		player.getPlayer().getActivePotionEffects().clear();
+		for (PotionEffect effect : player.getPlayer().getActivePotionEffects())
+			player.getPlayer().removePotionEffect(effect.getType());
 		player.getPlayer().setHealth(20d);
 		player.getPlayer().performCommand("spawn");
 	}
