@@ -80,21 +80,33 @@ public class GameControllerListener implements Listener {
 			if(killer != null) {
 				if(killer.isInGame()) {
 					victim.addDeath();
-					if(game.getType().equals(GameType.UHC)) {
-						event.getDrops().add(new ItemStack(Material.GOLDEN_APPLE, 1 + apples));
+					if(!victim.equals(killer)) {
+						if(game.getType().equals(GameType.UHC)) {
+							event.getDrops().add(new ItemStack(Material.GOLDEN_APPLE, 1 + apples));
+						} else {
+							killer.getPlayer().setHealth(20.0);
+						}
+						game.sendMessage(PvPKit.prefix+"§b"+victim.getPlayer().getName()+" §6s'est fait tué par §b"+killer.getPlayer().getName()+" §6!");
+						killer.addKill();
+						int killstreak = killer.getKillstreak();
+						if(killer.getKit().isRegiven() && killstreak % killer.getKit().getRegiveKills() == 0)
+							safeRegiveKit(killer.getPlayer(), killer.getKit());
+						if(killstreak > 0 && (killstreak % 10 == 0 || (killstreak % 5 == 0 && killstreak < 30))) {
+							game.sendMessage(PvPKit.prefix+"§b"+killer.getPlayer().getName()+" §6a fait une série de §c"+killstreak+" §6kills !");
+						}
+						statManager.showScoreboard(victim);
+						statManager.showScoreboard(killer);
+						return;
+						
 					} else {
-						killer.getPlayer().setHealth(20.0);
+						
+						if(game.getType().equals(GameType.UHC))
+							event.getDrops().add(new ItemStack(Material.GOLDEN_APPLE, 1 + apples));
+						game.sendMessage(PvPKit.prefix+"§b"+victim.getPlayer().getName()+" §6s'est suicidé !");
+						statManager.showScoreboard(victim);
+						return;
 					}
-					game.sendMessage(PvPKit.prefix+"§b"+victim.getPlayer().getName()+" §6s'est fait tué par §b"+killer.getPlayer().getName()+" §6!");
-					killer.addKill();
-					int killstreak = killer.getKillstreak();
-					if(killer.getKit().isRegiven() && killstreak % killer.getKit().getRegiveKills() == 0)
-						safeRegiveKit(killer.getPlayer(), killer.getKit());
-					if(killstreak > 0 && (killstreak % 10 == 0 || (killstreak % 5 == 0 && killstreak < 30))) {
-						game.sendMessage(PvPKit.prefix+"§b"+killer.getPlayer().getName()+" §6a fait une série de §c"+killstreak+" §6kills !");
-					}
-					statManager.showScoreboard(victim);
-					statManager.showScoreboard(killer);
+					
 				} else {
 					return;
 				}
@@ -270,7 +282,7 @@ public class GameControllerListener implements Listener {
 		
 	}
 	
-	private void safeRegiveKit(Player p, Kit kit) {
+	public void safeRegiveKit(Player p, Kit kit) {
 		Bukkit.getScheduler().runTaskLater(PvPKit.getInstance(), new Runnable() {
 
 			@Override
@@ -290,15 +302,20 @@ public class GameControllerListener implements Listener {
 	}
 	
 	private boolean playerHasItem(ItemStack[] inventory, ItemStack item) {
+		if(item == null)
+			return true;
+		
 		List<ItemStack> inv = Arrays.asList(inventory);
 		if(inv.contains(item))
 			return true;
 		
 		for(ItemStack i : inv) {
-			if(i.isSimilar(item))
-				return true;
-			if(i.getType().equals(item.getType()))
-				return true;
+			if(i != null){
+				if(i.isSimilar(item))
+					return true;
+				if(i.getType().equals(item.getType()))
+					return true;
+			}
 		}
 		
 		return false;
