@@ -17,6 +17,7 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -281,6 +282,26 @@ public class GameControllerListener implements Listener {
 		}
 		
 	}
+	
+	@EventHandler
+	public void onItemConsume(PlayerItemConsumeEvent event) {
+		
+		Player p = event.getPlayer();
+		
+		if(playerManager.getPlayer(p).isInGame() && event.getItem().getType().equals(Material.POTION)) {
+			Bukkit.getScheduler().runTaskLater(PvPKit.getInstance(), new Runnable() {
+
+				@Override
+				public void run() {
+					p.getInventory().remove(Material.GLASS_BOTTLE);
+				}
+				
+			}, 1L);
+			p.getInventory().remove(Material.GLASS_BOTTLE);
+		}
+		
+	}
+
 	
 	public void safeRegiveKit(Player p, Kit kit) {
 		Bukkit.getScheduler().runTaskLater(PvPKit.getInstance(), new Runnable() {
