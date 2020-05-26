@@ -203,7 +203,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 					p.sendMessage("§cCe kit n'& aucun effet de potion actif.");
 				} else {
 					for(PotionEffect ef : effects) {
-						p.sendMessage("  §a- "+ef.getType().getName().toLowerCase()+" §2("+(ef.getDuration() == Integer.MAX_VALUE ? 9999 : ef.getDuration() / 20)+"s / lvl "+ef.getAmplifier()+")");
+						p.sendMessage("  §a- "+ef.getType().getName().toLowerCase()+" §2("+(ef.getDuration() == Integer.MAX_VALUE ? 9999 : ef.getDuration() / 20)+"s / lvl "+(ef.getAmplifier()+1)+")");
 					}
 				}
 				p.sendMessage("§e========[ §9"+kit.getName()+" - effets §e]========");
@@ -247,18 +247,22 @@ public class PvPKitAdminCommand implements CommandExecutor {
 					}
 					
 					int duration = Integer.MAX_VALUE;
-					int level = 1;
+					int amplifier = 0;
 					
 					try {
 						if(args.length > 4)
-							level = Integer.parseInt(args[4]);
+							amplifier = Integer.parseInt(args[4]) - 1;
 						if(args.length > 5)
 							duration = Integer.parseInt(args[5]) * 20;
+						
+						if(amplifier < 0 || duration <= 0)
+							throw new Exception();
+						
 					} catch(Exception e) {
 						p.sendMessage(PvPKit.prefix+"§cMerci d'entrer un nombre valide !\n§cSyntaxe : §b/pka kit addeffect <kit> <effet> [niveau] [durée]");
 					}
 					
-					kit.addEffect(new PotionEffect(etype, duration, level, false, false));
+					kit.addEffect(new PotionEffect(etype, duration, amplifier, false, false));
 					kitmg.saveKits();
 					p.sendMessage(PvPKit.prefix+"§aEffet §b"+args[3]+"§a ajouté avec succès au kit §b"+kit.getName()+"§a !");
 					
