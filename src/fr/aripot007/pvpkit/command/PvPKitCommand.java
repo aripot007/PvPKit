@@ -44,7 +44,7 @@ public class PvPKitCommand implements CommandExecutor {
 				
 				return onListCommand(p, cmd, msg, args);
 				
-			} else if(args[0].equalsIgnoreCase("stat")) {
+			} else if(args[0].equalsIgnoreCase("stats")) {
 				
 				p.sendMessage("§e====[ §9PvPKit - Stats §e]====");
 				p.sendMessage("\n §6Kills : §b"+player.getKills());
@@ -57,13 +57,13 @@ public class PvPKitCommand implements CommandExecutor {
 				
 			} else {
 				p.sendMessage(PvPKit.prefix+"§cCommande inconnue !");
-				p.sendMessage("§6Commandes disponibles : §b/pk join, leave, list, stat§e.");
+				p.sendMessage("§6Commandes disponibles : §b/pk join, leave, list, stats§e.");
 				return false;
 			}
 		
 		} else {
 			p.sendMessage(PvPKit.prefix+"§cMerci de préciser un argument !");
-			p.sendMessage("§6Commandes disponibles : §b/pk join, leave, list, stat§e.");
+			p.sendMessage("§6Commandes disponibles : §b/pk join, leave, list, stats§e.");
 			return false;
 		}
 	}
