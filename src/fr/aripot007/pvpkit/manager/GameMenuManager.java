@@ -79,10 +79,8 @@ public class GameMenuManager {
 									"§6Meilleur Killstreak : §b" + pkp.getBestKillStreak(),
 									"§6Killstreak : §b" + pkp.getKillstreak()));
 		playerStatItem.setItemMeta(smeta);
-		menu.setItem(35, playerStatItem);
-		
 		p.openInventory(menu);
-
+		p.getOpenInventory().getTopInventory().setItem(35, playerStatItem);
 	}
 	
 	private void updateMenus() {
@@ -93,9 +91,9 @@ public class GameMenuManager {
 		
 		for(Player p : Bukkit.getOnlinePlayers()) {
 			if(p.getWorld().equals(Bukkit.getWorld("MiniJeux")) && p.getOpenInventory() != null && p.getOpenInventory().getTitle().equals(MENU_TITLE)) {
-				p.getInventory().setItem(11, biomeItem);
-				p.getInventory().setItem(13, canyonItem);
-				p.getInventory().setItem(15, lavaItem);
+				p.getOpenInventory().getTopInventory().setItem(11, biomeItem);
+				p.getOpenInventory().getTopInventory().setItem(13, canyonItem);
+				p.getOpenInventory().getTopInventory().setItem(15, lavaItem);
 				//p.updateInventory();
 			}
 		}
