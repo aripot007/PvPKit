@@ -71,9 +71,9 @@ public class GameControllerListener implements Listener {
 			event.setDroppedExp(0);
 			event.setDeathMessage(null);
 			int apples = 0;
-			for(ItemStack i : event.getDrops()) {
+			for(ItemStack i : victim.getPlayer().getInventory().getContents()) {
 				if (i.getType().equals(Material.GOLDEN_APPLE))
-					apples++;
+					apples =+ i.getAmount();
 			}
 			event.getDrops().clear();
 			Game game = controller.getGame(victim);
