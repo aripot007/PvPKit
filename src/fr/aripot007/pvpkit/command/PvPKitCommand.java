@@ -75,8 +75,7 @@ public class PvPKitCommand implements CommandExecutor {
 			return false;
 		} else {
 			if(args.length < 2) {
-				player.getPlayer().sendMessage(PvPKit.prefix+"§cMerci de préciser une partie !");
-				player.getPlayer().sendMessage("§cEntrez §b/pk list §cpour une liste des parties");
+				PvPKit.getInstance().getGameMenuManager().openMenu(player.getPlayer());
 				return false;
 			} else {
 				

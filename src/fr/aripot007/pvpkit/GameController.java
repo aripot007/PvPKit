@@ -20,6 +20,7 @@ import fr.aripot007.pvpkit.game.Game;
 import fr.aripot007.pvpkit.game.Kit;
 import fr.aripot007.pvpkit.game.PvPKitPlayer;
 import fr.aripot007.pvpkit.listener.KitMenuListener;
+import fr.aripot007.pvpkit.manager.GameMenuManager;
 import fr.aripot007.pvpkit.manager.KitManager;
 import fr.aripot007.pvpkit.manager.StatsScoreboardManager;
 import fr.aripot007.pvpkit.util.GUIUtil;
@@ -32,6 +33,7 @@ public class GameController {
 	
 	private StatsScoreboardManager statManager;
 	private KitManager kitManager = PvPKit.getInstance().getKitManager();
+	private GameMenuManager gmMenuMgr = PvPKit.getInstance().getGameMenuManager();
 	
 	
 	public GameController() {
@@ -65,6 +67,7 @@ public class GameController {
 		for (PotionEffect effect : p.getActivePotionEffects())
 		    p.removePotionEffect(effect.getType());
 		p.setHealth(20d);
+		gmMenuMgr.updatePlayers();
 	}
 	
 	public void leaveGame(PvPKitPlayer player) {
@@ -85,6 +88,7 @@ public class GameController {
 			player.getPlayer().removePotionEffect(effect.getType());
 		player.getPlayer().setHealth(20d);
 		player.getPlayer().performCommand("spawn");
+		gmMenuMgr.updatePlayers();
 	}
 	
 	public Game getGame(PvPKitPlayer p) {

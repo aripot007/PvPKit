@@ -13,6 +13,7 @@ import fr.aripot007.pvpkit.game.Kit;
 import fr.aripot007.pvpkit.listener.GameControllerListener;
 import fr.aripot007.pvpkit.manager.ArenaManager;
 import fr.aripot007.pvpkit.manager.GameManager;
+import fr.aripot007.pvpkit.manager.GameMenuManager;
 import fr.aripot007.pvpkit.manager.KitManager;
 import fr.aripot007.pvpkit.manager.PvPKitPlayerManager;
 import fr.aripot007.pvpkit.manager.StatsScoreboardManager;
@@ -27,6 +28,7 @@ public class PvPKit extends JavaPlugin {
 	public PvPKitPlayerManager playerManager;
 	public GameController gameController;
 	public StatsScoreboardManager statManager;
+	public GameMenuManager gameMenuManager;
 	
 	private static PvPKit instance = null;
 	
@@ -48,6 +50,7 @@ public class PvPKit extends JavaPlugin {
 		playerManager = new PvPKitPlayerManager();
 		statManager = new StatsScoreboardManager();
 		gameController = new GameController();
+		gameMenuManager = new GameMenuManager();
 		playerManager.reloadData();
 		kitManager.loadKits();
 		arenaManager.loadArenas();
@@ -90,6 +93,10 @@ public class PvPKit extends JavaPlugin {
 
 	public StatsScoreboardManager getScoreboardManager() {
 		return statManager;
+	}
+
+	public GameMenuManager getGameMenuManager() {
+		return gameMenuManager;
 	}
 
 }
