@@ -2,6 +2,7 @@ package fr.aripot007.pvpkit;
 
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -49,12 +50,19 @@ public class PvPKit extends JavaPlugin {
 		gameManager = new GameManager();
 		playerManager = new PvPKitPlayerManager();
 		statManager = new StatsScoreboardManager();
-		gameController = new GameController();
 		gameMenuManager = new GameMenuManager();
+		gameController = new GameController();
 		playerManager.reloadData();
 		kitManager.loadKits();
-		arenaManager.loadArenas();
-		gameManager.loadGames();
+		Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+
+			@Override
+			public void run() {
+				arenaManager.loadArenas();
+				gameManager.loadGames();
+			}
+			
+		}, 1L);
 		
 		getCommand("pvpkit").setExecutor(new PvPKitCommand());
 		getCommand("pvpkitadmin").setExecutor(new PvPKitAdminCommand(kitManager, arenaManager, gameManager));
