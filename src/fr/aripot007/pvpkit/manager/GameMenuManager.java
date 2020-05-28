@@ -34,21 +34,21 @@ public class GameMenuManager {
 		biomeItem = new ItemStack(Material.GRASS_BLOCK);
 		ItemMeta biomeMeta = biomeItem.getItemMeta();
 		biomeMeta.setDisplayName("§aBiomes");
-		biomeMeta.setLore(Arrays.asList("§bJoueurs : 0", "§d► Cliquez ici pour rejoindre la partie !"));
+		biomeMeta.setLore(Arrays.asList("§6Mode : §9"+gameMgr.getGame("Biome").getType(),"§bJoueurs : 0", "§d► Cliquez ici pour rejoindre la partie !"));
 		biomeItem.setItemMeta(biomeMeta);
 		menu.setItem(11, biomeItem);
 		
 		canyonItem = new ItemStack(Material.SAND);
 		ItemMeta canyonMeta = canyonItem.getItemMeta();
 		canyonMeta.setDisplayName("§eCanyon");
-		canyonMeta.setLore(Arrays.asList("§bJoueurs : 0", "§d► Cliquez ici pour rejoindre la partie !"));
+		canyonMeta.setLore(Arrays.asList("§6Mode : §9"+gameMgr.getGame("Canyon").getType(),"§bJoueurs : 0", "§d► Cliquez ici pour rejoindre la partie !"));
 		canyonItem.setItemMeta(canyonMeta);
 		menu.setItem(13, canyonItem);
 		
 		lavaItem = new ItemStack(Material.LAVA_BUCKET);
 		ItemMeta lavaMeta = lavaItem.getItemMeta();
 		lavaMeta.setDisplayName("§cLava factory");
-		lavaMeta.setLore(Arrays.asList("§bJoueurs : 0", "§d► Cliquez ici pour rejoindre la partie !"));
+		lavaMeta.setLore(Arrays.asList("§6Mode : §9"+gameMgr.getGame("Lava-Factory").getType(),"§bJoueurs : 0", "§d► Cliquez ici pour rejoindre la partie !"));
 		lavaItem.setItemMeta(lavaMeta);
 		menu.setItem(15, lavaItem);
 		
@@ -79,8 +79,10 @@ public class GameMenuManager {
 									"§6Meilleur Killstreak : §b" + pkp.getBestKillStreak(),
 									"§6Killstreak : §b" + pkp.getKillstreak()));
 		playerStatItem.setItemMeta(smeta);
-		p.openInventory(menu);
-		p.getOpenInventory().getTopInventory().setItem(35, playerStatItem);
+		Inventory pmenu = Bukkit.createInventory(null, 36, MENU_TITLE);
+		pmenu.setContents(menu.getContents());
+		pmenu.setItem(35, playerStatItem);
+		p.openInventory(pmenu);
 	}
 	
 	private void updateMenus() {
@@ -102,20 +104,20 @@ public class GameMenuManager {
 	public void updatePlayers() {
 		
 		ItemMeta canyonMeta = canyonItem.getItemMeta();
-		canyonMeta.setLore(Arrays.asList("§bJoueurs : "+gameMgr.getGame("Canyon").getPlayers().size(), "§d► Cliquez ici pour rejoindre la partie !"));
+		canyonMeta.setLore(Arrays.asList("§6Mode : §9"+gameMgr.getGame("Canyon").getType(),"§bJoueurs : "+gameMgr.getGame("Canyon").getPlayers().size(), "§d► Cliquez ici pour rejoindre la partie !"));
 		canyonItem.setItemMeta(canyonMeta);
 		
 		ItemMeta biomeMeta = biomeItem.getItemMeta();
-		biomeMeta.setLore(Arrays.asList("§bJoueurs : "+gameMgr.getGame("Biome").getPlayers().size(), "§d► Cliquez ici pour rejoindre la partie !"));
+		biomeMeta.setLore(Arrays.asList("§6Mode : §9"+gameMgr.getGame("Biome").getType(),"§bJoueurs : "+gameMgr.getGame("Biome").getPlayers().size(), "§d► Cliquez ici pour rejoindre la partie !"));
 		biomeItem.setItemMeta(biomeMeta);
 		
 		ItemMeta lavaMeta = lavaItem.getItemMeta();
-		lavaMeta.setLore(Arrays.asList("§bJoueurs : "+gameMgr.getGame("Lava-Factory").getPlayers().size(), "§d► Cliquez ici pour rejoindre la partie !"));
+		lavaMeta.setLore(Arrays.asList("§6Mode : §9"+gameMgr.getGame("Lava-Factory").getType(),"§bJoueurs : "+gameMgr.getGame("Lava-Factory").getPlayers().size(), "§d► Cliquez ici pour rejoindre la partie !"));
 		lavaItem.setItemMeta(lavaMeta);
 		
 		updateMenus();
 	}
-	//TODO Listener with reaction to click + removing players from openedMenus when inventory closed
+	
 	class GameMenuListener implements Listener {
 		
 		@EventHandler
