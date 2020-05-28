@@ -198,6 +198,8 @@ public class GameControllerListener implements Listener {
 		PvPKitPlayer p = playerManager.getPlayer(event.getPlayer());
 		if(p.isInGame()) {
 			event.setCancelled(true);
+		} else if (event.getBlock().getType().equals(controller.getLeaveItem().getType()) && event.getPlayer().getWorld().getName().equals("MiniJeux")) {
+			event.setCancelled(true);
 		}
 	}
 	
@@ -208,8 +210,10 @@ public class GameControllerListener implements Listener {
 		PvPKitPlayer p = playerManager.getPlayer(event.getPlayer());
 		if(p.isInGame()) {
 			if(event.getItem().equals(controller.getKitMenuItem())) {
+				event.setCancelled(true);
 				controller.openKitMenu(p);
 			} else if(event.getItem().equals(controller.getLeaveItem())) {
+				event.setCancelled(true);
 				controller.leaveGame(p);
 			}
 		}
