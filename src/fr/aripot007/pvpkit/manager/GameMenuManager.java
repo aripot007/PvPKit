@@ -29,6 +29,13 @@ public class GameMenuManager {
 	static final String MENU_TITLE = "§9§lPvPKit";
 	
 	public GameMenuManager() {
+		
+	}
+	
+	public void init() {
+		
+		this.gameMgr = PvPKit.getInstance().getGameManager();
+		
 		this.menu = Bukkit.createInventory(null, 36, MENU_TITLE);
 		
 		biomeItem = new ItemStack(Material.GRASS_BLOCK);
@@ -58,10 +65,8 @@ public class GameMenuManager {
 		backItem.setItemMeta(backMeta);
 		menu.setItem(27, backItem);
 		
-		this.gameMgr = PvPKit.getInstance().getGameManager();
 		
 		PvPKit.getInstance().getServer().getPluginManager().registerEvents(new GameMenuListener(), PvPKit.getInstance());
-		
 	}
 	
 	public void openMenu(Player p) {

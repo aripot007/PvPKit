@@ -31,6 +31,8 @@ public class PvPKit extends JavaPlugin {
 	public StatsScoreboardManager statManager;
 	public GameMenuManager gameMenuManager;
 	
+	public GameControllerListener gmList;
+	
 	private static PvPKit instance = null;
 	
 	public PvPKit() {
@@ -39,6 +41,7 @@ public class PvPKit extends JavaPlugin {
 	
 	@Override
 	public void onEnable(){
+		
 		ConfigurationSerialization.registerClass(Kit.class, "Kit");
 		ConfigurationSerialization.registerClass(Arena.class, "Arena");
 		ConfigurationSerialization.registerClass(Game.class, "Game");
@@ -60,6 +63,7 @@ public class PvPKit extends JavaPlugin {
 			public void run() {
 				arenaManager.loadArenas();
 				gameManager.loadGames();
+				gameMenuManager.init();
 			}
 			
 		}, 1L);
@@ -67,7 +71,9 @@ public class PvPKit extends JavaPlugin {
 		getCommand("pvpkit").setExecutor(new PvPKitCommand());
 		getCommand("pvpkitadmin").setExecutor(new PvPKitAdminCommand(kitManager, arenaManager, gameManager));
 		
-		getServer().getPluginManager().registerEvents(new GameControllerListener(), this);
+		gmList = new GameControllerListener();
+		
+		getServer().getPluginManager().registerEvents(gmList, this);
 	}
 	
 	@Override
@@ -107,4 +113,8 @@ public class PvPKit extends JavaPlugin {
 		return gameMenuManager;
 	}
 
+	public GameControllerListener getGmList() {
+		return gmList;
+	}
+	
 }
