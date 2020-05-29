@@ -40,7 +40,6 @@ public class GameControllerListener implements Listener {
 	GameController controller =PvPKit.getInstance().getGameController();
 	StatsScoreboardManager statManager = PvPKit.getInstance().getScoreboardManager();
 	
-
 	@EventHandler
 	public void onQuit(PlayerQuitEvent event) {
 		PvPKitPlayer p = playerManager.getPlayer(event.getPlayer());
@@ -65,14 +64,16 @@ public class GameControllerListener implements Listener {
 	
 	@EventHandler
 	public void onDeath(PlayerDeathEvent event) {
+	
 		PvPKitPlayer victim = playerManager.getPlayer(event.getEntity().getPlayer());
+		
 		if(victim.isInGame()) {
 			PvPKitPlayer killer = playerManager.getPlayer(event.getEntity().getKiller());
 			event.setDroppedExp(0);
 			event.setDeathMessage(null);
 			int apples = 0;
 			for(ItemStack i : victim.getPlayer().getInventory().getContents()) {
-				if (i.getType().equals(Material.GOLDEN_APPLE))
+				if (i !=null && i.getType().equals(Material.GOLDEN_APPLE))
 					apples =+ i.getAmount();
 			}
 			event.getDrops().clear();
