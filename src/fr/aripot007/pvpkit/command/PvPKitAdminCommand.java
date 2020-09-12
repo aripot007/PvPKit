@@ -24,6 +24,11 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
+/**
+ * Handle administration commands
+ * @author Aristide
+ *
+ */
 public class PvPKitAdminCommand implements CommandExecutor {
 
 	private KitManager kitmg;
@@ -69,6 +74,10 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		return false;
 	}
 	
+	/**
+	 * Handle the commands used to manage kits
+	 * @return A boolean indicating if the command execution was successful
+	 */
 	private boolean onKitCommand(CommandSender sender, Command cmd, String msg, String[] args) {
 		Player p = (Player) sender;
 		if(args.length == 1) {
@@ -323,6 +332,10 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		return false;
 	}
 	
+	/**
+	 * Handle the commands used to manage arenas
+	 * @return A boolean indicating if the command execution was successful
+	 */
 	private boolean onArenaCommand(CommandSender sender, Command cmd, String msg, String[] args) {
 		Player p = (Player) sender;
 		
@@ -504,6 +517,10 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		return false;
 	}
 	
+	/**
+	 * Handle the commands used to manage games
+	 * @return A boolean indicating if the command execution was successful
+	 */
 	private boolean onGameCommand(CommandSender sender, Command cmd, String msg, String[] args) {
 		Player p = (Player) sender;
 		if(args.length == 1) {

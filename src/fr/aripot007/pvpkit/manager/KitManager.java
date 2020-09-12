@@ -14,6 +14,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import fr.aripot007.pvpkit.game.Kit;
 
+/**
+ * Manages the kits.
+ * 
+ * Used to load and save kits
+ * @author Aristide
+ *
+ */
 public class KitManager {
 	
 	private Logger log;
@@ -28,6 +35,9 @@ public class KitManager {
 		loadKits();
 	}
 	
+	/**
+	 * Load all the kits from the kits config file
+	 */
 	public void loadKits() {
 		kitsData = YamlConfiguration.loadConfiguration(kitsFile);
 		kits.clear();
@@ -37,6 +47,9 @@ public class KitManager {
 		}
 	}
 
+	/**
+	 * Load all the kits to the kits config file
+	 */
 	public void saveKits() {
 		for(Kit kit : kits.values()) {
 			kitsData.set(kit.getName(), null);
@@ -50,12 +63,19 @@ public class KitManager {
 		}
 		loadKits();
 	}
-
+	
+	/**
+	 * Load a kit from the kits config file
+	 */
 	public Kit loadKit(String name) {
 		kitsData = YamlConfiguration.loadConfiguration(kitsFile);
 		return (Kit) kitsData.get(name);
 	}
 
+	/**
+	 * Get the valid kits.
+	 * @return a list of valid kits
+	 */
 	public Set<Kit> getValidKits() {
 		Set<Kit> result = new HashSet<Kit>();
 		for(Kit kit : kits.values()) {
@@ -65,6 +85,10 @@ public class KitManager {
 		return result;
 	}
 	
+	/**
+	 * Get the invalid kits.
+	 * @return a list of invalid kits
+	 */
 	public Set<Kit> getInvalidKits() {
 		Set<Kit> result = new HashSet<Kit>();
 		for(Kit kit : kits.values()) {
@@ -78,6 +102,7 @@ public class KitManager {
 		return kits;
 	}
 	
+	/** Return a copy of the kits map keyset*/
 	public Set<String> getKitsKeySet() {
 		return new HashSet<String>(kits.keySet());
 	}

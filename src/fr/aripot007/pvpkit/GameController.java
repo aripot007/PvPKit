@@ -25,6 +25,11 @@ import fr.aripot007.pvpkit.manager.KitManager;
 import fr.aripot007.pvpkit.manager.StatsScoreboardManager;
 import fr.aripot007.pvpkit.util.GUIUtil;
 
+/**
+ * Handle the joining and leaving of a game and the kit selection menu.
+ * @author Aristide
+ *
+ */
 public class GameController {
 
 	private Map<PvPKitPlayer, Game> ingamePlayers = new HashMap<PvPKitPlayer, Game>();
@@ -50,7 +55,12 @@ public class GameController {
 		meta.setLore(Arrays.asList("§eFaites un click droit avec ce lit","§epour quitter la partie."));
 		leaveItem.setItemMeta(meta);
 	}
-		
+	
+	/**
+	 * Make a player join a game.
+	 * @param player The player
+	 * @param game The game
+	 */
 	public void joinGame(PvPKitPlayer player, Game game) {
 		if(player.isInGame()) {
 			return;
@@ -70,6 +80,10 @@ public class GameController {
 		gmMenuMgr.updatePlayers();
 	}
 	
+	/**
+	 * Make a player leave a game.
+	 * @param player The player
+	 */
 	public void leaveGame(PvPKitPlayer player) {
 		if(!player.isInGame())
 			return;
@@ -95,6 +109,10 @@ public class GameController {
 		return ingamePlayers.get(p);
 	}
 	
+	/**
+	 * Get the content of the inventory to give to a player when he joins a game
+	 * @return An ItemStack array representing the inventory content
+	 */
 	public ItemStack[] getMenuContent() {
 		ItemStack[] content = new ItemStack[41];
 		content[0] = kitMenuItem;
@@ -102,6 +120,9 @@ public class GameController {
 		return content;
 	}
 
+	/**
+	 * Open the kit menu to a player and register a {@link KitMenuListener} for this player.
+	 */
 	public void openKitMenu(PvPKitPlayer p) {
 		if(p.isInGame()) {
 			List<Kit> kits = new ArrayList<Kit>();
@@ -120,6 +141,9 @@ public class GameController {
 		return;
 	}
 	
+	/**
+	 * Debug only
+	 */
 	public void dumpInGamePlayers() {
 		System.out.println("Joueurs :");
 		for(Entry<PvPKitPlayer, Game> entry : ingamePlayers.entrySet()) {

@@ -13,6 +13,10 @@ import fr.aripot007.pvpkit.game.PvPKitPlayer;
 import fr.aripot007.pvpkit.manager.GameManager;
 import fr.aripot007.pvpkit.manager.PvPKitPlayerManager;
 
+/** 
+ * Handle generic user commands
+ * @author Aristide
+ * */
 public class PvPKitCommand implements CommandExecutor {
 	
 	PvPKitPlayerManager playerManager = PvPKit.getInstance().getPvPKitPlayerManager();
@@ -68,6 +72,10 @@ public class PvPKitCommand implements CommandExecutor {
 		}
 	}
 	
+	/**
+	 * Handle the command used to join a game
+	 * @return A boolean indicating if the command execution was successful
+	 */
 	private boolean onJoinCommand(PvPKitPlayer player, Command cmd, String msg, String[] args) {
 		
 		if(player.isInGame()) {
@@ -102,6 +110,10 @@ public class PvPKitCommand implements CommandExecutor {
 		}
 	}
 	
+	/**
+	 * Handle the command used to leave a game
+	 * @return A boolean indicating if the command execution was successful
+	 */
 	private boolean onLeaveCommand(PvPKitPlayer player, Command cmd, String msg, String[] args) {
 		if(!player.isInGame()) {
 			player.getPlayer().sendMessage(PvPKit.prefix+"§cVous n'êtes pas dans une partie !");
@@ -112,6 +124,10 @@ public class PvPKitCommand implements CommandExecutor {
 		}
 	}
 
+	/**
+	 * Handle the command used to list available games
+	 * @return A boolean indicating if the command execution was successful
+	 */
 	private boolean onListCommand(Player player, Command cmd, String msg, String[] args) {
 		player.sendMessage("§e========[ §9Parties disponibles §e]========");
 		for(Game g : gameManager.getGames().values()) {

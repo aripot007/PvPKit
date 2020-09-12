@@ -4,11 +4,17 @@ import java.util.List;
 
 import fr.aripot007.pvpkit.game.Kit;
 
-
+/**
+ * GUI Utility functions
+ * @author Tsumifa
+ *
+ */
 public class GUIUtil {
 
 	/**
-	 * @author Tsumifa
+	 * Organize a list of items in a menu.
+	 * @param items The items to organize
+	 * @return An array with the items correctly positionned
 	 */
 	public static Kit[] formatMenu(List<Kit> items){
 		

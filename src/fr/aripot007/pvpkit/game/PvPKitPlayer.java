@@ -5,11 +5,17 @@ import java.util.Map;
 
 import org.bukkit.entity.Player;
 
+/** A player wrapper that adds some stats*/
 public class PvPKitPlayer {
 	
+	/** The player corresponding to this PvPKitPlayer*/
 	private Player player;
+	
+	/** Statistics of the player*/
 	private int kills, deaths, killstreak, bestKs;
 	private Kit kit;
+	
+	/** Is this player in a game ? **/
 	private boolean inGame;
 	
 	public PvPKitPlayer(Player player){
@@ -97,6 +103,7 @@ public class PvPKitPlayer {
 		bestKs = best;
 	}
 	
+	/** Serialize this player to a map */
 	public Map<String, Object> serialize() {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("kills", kills);
@@ -106,6 +113,7 @@ public class PvPKitPlayer {
 		return result;
 	}
 	
+	/** Create a player from a map */
 	public static PvPKitPlayer deserialize(Map<String, Object> map, Player p) {
 		int kills = (int) map.getOrDefault("kills", 0);
 		int deaths = (int) map.getOrDefault("deaths", 0);

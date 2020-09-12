@@ -12,6 +12,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import fr.aripot007.pvpkit.game.Game;
 
+/**
+ * Manages the games.
+ * 
+ * Used to load and save games
+ * @author Aristide
+ *
+ */
 public class GameManager {
 	
 	private Logger log;
@@ -26,6 +33,9 @@ public class GameManager {
 		loadGames();
 	}
 	
+	/**
+	 * Load all the games from the games config file
+	 */
 	public void loadGames() {
 		gameData = YamlConfiguration.loadConfiguration(gameFile);
 		games.clear();
@@ -34,10 +44,16 @@ public class GameManager {
 		}
 	}
 	
+	/**
+	 * Load a game from the games config file
+	 */
 	public Game loadGame(String name) {
 		return (Game) gameData.get(name);
 	}
 	
+	/**
+	 * Save all the games to the games config file
+	 */
 	public void saveGames() {
 		for(Game game : games.values()) {
 			gameData.set(game.getName(), null);

@@ -14,6 +14,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import fr.aripot007.pvpkit.game.Arena;
 
+/**
+ * Manages the arenas.
+ * 
+ * Used to load and save arenas
+ * @author Aristide
+ *
+ */
 public class ArenaManager {
 	
 	private Logger log;
@@ -28,6 +35,10 @@ public class ArenaManager {
 		loadArenas();
 		}
 	
+	
+	/**
+	 * Load all the arenas from the arenas config file
+	 */
 	public void loadArenas() {
 		arData = YamlConfiguration.loadConfiguration(arFile);
 		arenas.clear();
@@ -37,11 +48,17 @@ public class ArenaManager {
 		}
 	}
 	
+	/**
+	 * Load an arena from the arenas config file
+	 */
 	public Arena loadArena(String name) {
 		arData = YamlConfiguration.loadConfiguration(arFile);
 		return (Arena) arData.get(name);
 	}
 	
+	/**
+	 * Save all the arenas to the arenas config file
+	 */
 	public void saveArenas() {
 		for(Arena arena : arenas.values()) {
 			arData.set(arena.getName(), null);
@@ -75,6 +92,10 @@ public class ArenaManager {
 		arenas.remove(name);
 	}
 	
+	/**
+	 * Get the valid arenas.
+	 * @return a list of valid arenas
+	 */
 	public Set<Arena> getValidArenas(){
 		Set<Arena> valid = new HashSet<Arena>();
 		for(Arena a : arenas.values()) {
@@ -84,6 +105,10 @@ public class ArenaManager {
 		return valid;
 	}
 
+	/**
+	 * Get the invalid arenas.
+	 * @return a list of invalid arenas
+	 */
 	public Set<Arena> getInvalidArenas(){
 		Set<Arena> invalid = new HashSet<Arena>();
 		for(Arena a : arenas.values()) {
