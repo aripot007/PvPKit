@@ -14,6 +14,13 @@ import org.bukkit.entity.Player;
 
 import fr.aripot007.pvpkit.game.PvPKitPlayer;
 
+/**
+ * Manages the players.
+ * 
+ * Used to load and save players
+ * @author Aristide
+ *
+ */
 public class PvPKitPlayerManager {
 
 	private Map<Player, PvPKitPlayer> players;
@@ -28,6 +35,9 @@ public class PvPKitPlayerManager {
 		reloadData();
 	}
 	
+	/**
+	 * Reload the data from the players config file
+	 */
 	public void reloadData() {
 		playersData = YamlConfiguration.loadConfiguration(playersFile);
 		players.clear();
@@ -38,6 +48,9 @@ public class PvPKitPlayerManager {
 		return;
 	}
 	
+	/**
+	 * Save all the players to the players config file
+	 */
 	public void savePlayers() {
 		try {
 			for(Entry<Player, PvPKitPlayer> entry : players.entrySet()) {
@@ -59,12 +72,19 @@ public class PvPKitPlayerManager {
 		players.remove(p);
 	}
 	
+	
+	/**
+	 * Register a player to the players map.
+	 * Try to get it from the config file, and if it does not exist, create a new one.
+	 */
 	@SuppressWarnings("unchecked")
 	public void registerPlayer(Player p) {
 		
 		String key = p.getUniqueId().toString();
 		
 		if(playersData.getKeys(false).contains(key)) {
+			
+			// The player is saved in the config file
 			
 			Map<String, Object> map = new HashMap<String, Object>();
 			
@@ -86,10 +106,10 @@ public class PvPKitPlayerManager {
 				
 			}
 			
-			
-			
 			players.put(p, PvPKitPlayer.deserialize(map, p));
 		} else {
+			
+			// The player does not exist in the config file
 			
 			PvPKitPlayer player = new PvPKitPlayer(p);
 			players.put(p, player);
@@ -97,6 +117,7 @@ public class PvPKitPlayerManager {
 		return;
 	}
 	
+	// Debug only
 	public void dumpPlayers() {
 		System.out.println("PlayerManager players :");
 		for(Entry<Player, PvPKitPlayer> e : players.entrySet()) {

@@ -9,10 +9,18 @@ import org.bukkit.scoreboard.ScoreboardManager;
 import fr.aripot007.pvpkit.PvPKit;
 import fr.aripot007.pvpkit.game.PvPKitPlayer;
 
+/**
+ * Manages the scoreboard shown to the player.
+ * @author Aristide
+ *
+ */
 public class StatsScoreboardManager {
 	
 	ScoreboardManager mgr = Bukkit.getScoreboardManager();
 	
+	/**
+	 * Show the stats scoreboard to a player.
+	 */
 	public void showScoreboard(PvPKitPlayer pkp) {
 		
 		Scoreboard b = mgr.getNewScoreboard();
@@ -38,6 +46,9 @@ public class StatsScoreboardManager {
 		
 	}
 	
+	/**
+	 * Hide the scoreboard from a player
+	 */
 	public void hideScoreboard(PvPKitPlayer p) {
 		p.getPlayer().setScoreboard(mgr.getNewScoreboard());
 	}

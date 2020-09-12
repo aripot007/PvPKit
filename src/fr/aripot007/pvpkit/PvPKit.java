@@ -42,12 +42,14 @@ public class PvPKit extends JavaPlugin {
 	@Override
 	public void onEnable(){
 		
+		// Register classes for serialization
 		ConfigurationSerialization.registerClass(Kit.class, "Kit");
 		ConfigurationSerialization.registerClass(Arena.class, "Arena");
 		ConfigurationSerialization.registerClass(Game.class, "Game");
 		
 		prefix = this.getConfig().getString("prefix").replaceAll("&", "§");
 		
+		// Create entities managers
 		kitManager = new KitManager();
 		arenaManager = new ArenaManager();
 		gameManager = new GameManager();

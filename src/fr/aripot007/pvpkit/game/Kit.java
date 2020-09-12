@@ -12,14 +12,31 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+/**
+ * A kit useable in an {@link Arena}.
+ * It will be given to a player if he chooses it.
+ * @author Aristide
+ *
+ */
 @SerializableAs("Kit")
 public class Kit implements ConfigurationSerializable {
 
+	/** The name of the arena used to identify it */
 	private String name;
+	
+	/** A list of potions effects given to the player when he chooses the kit*/
 	private List<PotionEffect> effects = new ArrayList<PotionEffect>();
+	
+	/** Should the kit be given again to the player after a certain amount of kills ? */
 	private boolean regiven = false;
+	
+	/** The number of kills needed to be given the kit again if {@link #regiven} is true*/
 	private int regiveKills = 3;
+	
+	/** The icon of the kit to display in menus */
 	private ItemStack icon;
+	
+	/** The content of the kit given to the player */
 	private ItemStack[] inventoryContent;
 	
 	public Kit(String name){
@@ -35,11 +52,19 @@ public class Kit implements ConfigurationSerializable {
 		this.regiveKills = regiveKills;
 	}
 	
+	/**
+	 * Check if the kit settings are valid.
+	 */
 	public boolean isValid() {
 		return (inventoryContent != null && inventoryContent.length > 0 
 				&& !inventoryContent.equals(new ItemStack[41]) && icon != null);
 	}
 
+	/**
+	 * Get the errors in the configuration of this kit.
+	 * Return an empty list if there is no error.
+	 * @return A list of the errors.
+	 */
 	public List<String> getErrors(){
 		List<String> errors = new ArrayList<String>();
 		if(name == null || name.equals(""))
@@ -110,6 +135,7 @@ public class Kit implements ConfigurationSerializable {
 		this.regiveKills = regiveKills;
 	}
 
+	/** Serialize this kit to a map */
 	@Override
 	public Map<String, Object> serialize() {
 		
@@ -132,6 +158,7 @@ public class Kit implements ConfigurationSerializable {
 		return result;
 	}
 	
+	/** Create a kit from a map */
 	@SuppressWarnings("unchecked")
 	public static Kit deserialize(Map<String, Object> map) {
 		ItemStack icon = (ItemStack) map.get("icon"); //$NON-NLS-1$
