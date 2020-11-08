@@ -4,8 +4,12 @@ import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.alecgorge.minecraft.jsonapi.JSONAPI;
+
+import fr.aripot007.pvpkit.api.StatsCallHandler;
 import fr.aripot007.pvpkit.command.PvPKitAdminCommand;
 import fr.aripot007.pvpkit.command.PvPKitCommand;
 import fr.aripot007.pvpkit.game.Arena;
@@ -76,6 +80,25 @@ public class PvPKit extends JavaPlugin {
 		gmList = new GameControllerListener();
 		
 		getServer().getPluginManager().registerEvents(gmList, this);
+		
+		/*
+		 * Load JSONAPI if the plugin is present
+		 */
+		
+		Plugin pl = this.getServer().getPluginManager().getPlugin("JSONAPI-RELOADED");
+		
+		if(pl != null) {
+			
+			log.info("JSONAPI-RELOADED detected ! Initializing api ...");
+			
+			JSONAPI jsonapi = (JSONAPI) pl;
+			
+			jsonapi.registerAPICallHandler(new StatsCallHandler());
+			
+		} else {
+			log.info("JSONAPI-RELOADED was not found on this server, the API will not be enabled.");
+		}
+		
 	}
 	
 	@Override

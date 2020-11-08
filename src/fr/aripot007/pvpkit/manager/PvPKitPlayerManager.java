@@ -12,6 +12,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
+import fr.aripot007.pvpkit.game.OfflinePvPKitPlayer;
 import fr.aripot007.pvpkit.game.PvPKitPlayer;
 
 /**
@@ -115,6 +116,47 @@ public class PvPKitPlayerManager {
 			players.put(p, player);
 		}
 		return;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public OfflinePvPKitPlayer getOfflinePlayer(String uuid) {
+		
+		String key = uuid;
+		
+		if(playersData.getKeys(false).contains(key)) {
+			
+			// The player is saved in the config file
+			
+			Map<String, Object> map = new HashMap<String, Object>();
+			
+			/*
+			 * Fix weird inconsistency wher ConfigurationSection#get() returns a ConfigurationSection
+			 * on the first call and then a Map<String, Object> on the other calls
+			 */
+			
+			if(playersData.isConfigurationSection(key)) { //first call
+				
+				ConfigurationSection section = playersData.getConfigurationSection(key);
+				for(String s : section.getKeys(false)) {
+					map.put(s, section.get(s));
+				}
+				
+			} else { //other calls
+				
+				map = (Map<String, Object>) playersData.get(key);
+				
+			}
+			
+			return OfflinePvPKitPlayer.deserialize(map, uuid.toString());
+			
+		} else {
+			
+			// The player does not exist in the config file
+			
+			return null;
+			
+		}
+		
 	}
 	
 	// Debug only
