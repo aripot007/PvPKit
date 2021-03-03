@@ -73,8 +73,10 @@ public class GameControllerListener implements Listener {
 	public void onTeleport(PlayerTeleportEvent event) {
 		PvPKitPlayer p = playerManager.getPlayer(event.getPlayer());
 		if(p.isInGame()) {
-			if(!event.getFrom().getWorld().equals(event.getTo().getWorld()))
+			if(!event.getFrom().getWorld().equals(event.getTo().getWorld())) {
 				controller.leaveGame(p);
+				
+			}
 		}
 	}
 	

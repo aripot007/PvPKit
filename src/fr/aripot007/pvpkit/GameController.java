@@ -65,19 +65,28 @@ public class GameController {
 		if(player.isInGame()) {
 			return;
 		}	
+		Player p = player.getPlayer();
+		p.teleport(game.getArena().getSpawn());
 		player.setInGame(true);
 		game.addPlayer(player);
 		game.sendMessage(PvPKit.prefix+"§b"+player.getPlayer().getName()+" §aa rejoint la partie !");
 		ingamePlayers.put(player, game);
-		Player p = player.getPlayer();
-		p.teleport(game.getArena().getSpawn());
-		p.getInventory().setContents(getMenuContent());
 		p.setGameMode(GameMode.ADVENTURE);
 		statManager.showScoreboard(player);
 		for (PotionEffect effect : p.getActivePotionEffects())
 		    p.removePotionEffect(effect.getType());
 		p.setHealth(20d);
 		gmMenuMgr.updatePlayers();
+		
+		Bukkit.getScheduler().runTaskLater(PvPKit.getInstance(), new Runnable() { // set the player's inventory after 5 ticks
+
+			@Override
+			public void run() {
+				p.getInventory().setContents(getMenuContent());
+			}
+			
+		}, 5L);
+		
 	}
 	
 	/**
