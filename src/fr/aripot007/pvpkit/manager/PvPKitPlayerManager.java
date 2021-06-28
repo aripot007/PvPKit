@@ -33,7 +33,6 @@ public class PvPKitPlayerManager {
 		log = Bukkit.getPluginManager().getPlugin("PvPKit").getLogger();
 		playersFile = new File(Bukkit.getPluginManager().getPlugin("PvPKit").getDataFolder(), "players.yml");
 		players = new HashMap<Player, PvPKitPlayer>();
-		reloadData();
 	}
 	
 	/**
@@ -90,7 +89,7 @@ public class PvPKitPlayerManager {
 			Map<String, Object> map = new HashMap<String, Object>();
 			
 			/*
-			 * Fix weird inconsistency wher ConfigurationSection#get() returns a ConfigurationSection
+			 * Fix weird inconsistency where ConfigurationSection#get() returns a ConfigurationSection
 			 * on the first call and then a Map<String, Object> on the other calls
 			 */
 			
