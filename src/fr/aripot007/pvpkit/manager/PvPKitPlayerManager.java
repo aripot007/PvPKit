@@ -24,10 +24,10 @@ import fr.aripot007.pvpkit.game.PvPKitPlayer;
  */
 public class PvPKitPlayerManager {
 
-	private Map<Player, PvPKitPlayer> players;
-	private Logger log;
-	private File playersFile;
-	private FileConfiguration playersData;
+	Map<Player, PvPKitPlayer> players;
+	Logger log;
+	File playersFile;
+	FileConfiguration playersData;
 	
 	public PvPKitPlayerManager() {
 		log = Bukkit.getPluginManager().getPlugin("PvPKit").getLogger();
