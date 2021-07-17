@@ -13,5 +13,7 @@ public enum GameStatus {
 	/** The game is under maintenance, it is displayed but players can't join it */
 	MAINTENANCE,
 	/** The game is under configuration or is not valid, it is not displayed and players can't join it*/
-	CONFIG;
+	CONFIG,
+	/** The game is currently used in a session, and is managed by this session, it is not displayed and players can't join it*/
+	SESSION;
 }
