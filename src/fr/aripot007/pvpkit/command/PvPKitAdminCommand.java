@@ -2,6 +2,8 @@ package fr.aripot007.pvpkit.command;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -17,9 +19,11 @@ import fr.aripot007.pvpkit.game.Game;
 import fr.aripot007.pvpkit.game.GameStatus;
 import fr.aripot007.pvpkit.game.GameType;
 import fr.aripot007.pvpkit.game.Kit;
+import fr.aripot007.pvpkit.game.Session;
 import fr.aripot007.pvpkit.manager.ArenaManager;
 import fr.aripot007.pvpkit.manager.GameManager;
 import fr.aripot007.pvpkit.manager.KitManager;
+import fr.aripot007.pvpkit.manager.SessionManager;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -34,11 +38,13 @@ public class PvPKitAdminCommand implements CommandExecutor {
 	private KitManager kitmg;
 	private ArenaManager armg;
 	private GameManager gamemg;
+	private SessionManager sessmg;
 	
-	public PvPKitAdminCommand(KitManager kitmg, ArenaManager armg, GameManager gamemg) {
+	public PvPKitAdminCommand(KitManager kitmg, ArenaManager armg, GameManager gamemg, SessionManager sessmg) {
 		this.kitmg = kitmg;
 		this.armg = armg;
 		this.gamemg = gamemg;
+		this.sessmg = sessmg;
 	}
 	
 	
@@ -65,6 +71,10 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		} else if(args[0].equalsIgnoreCase("game")) {
 			
 			return onGameCommand(sender, cmd, msg, args);
+			
+		} else if(args[0].equalsIgnoreCase("session")) {
+			
+			return onSessionCommand(sender, cmd, msg, args);
 			
 		} else {
 			sender.sendMessage(PvPKit.prefix+"§cCommande inconnue !"); 
@@ -697,6 +707,326 @@ public class PvPKitAdminCommand implements CommandExecutor {
 		} else {
 			p.sendMessage(PvPKit.prefix+"§cCommande inconnue !"); 
 			p.sendMessage(PvPKit.prefix + "§cPour une liste des commandes disponibles, entrez &b/pka game"); //$NON-NLS-1$
+			return false;
+		}
+		return false;
+	}
+	
+	/**
+	 * Handle the commands used to manage sessions
+	 * @return A boolean indicating if the command execution was successful
+	 */
+	private boolean onSessionCommand(CommandSender sender, Command cmd, String msg, String[] args) {
+		Player p = (Player) sender;
+		if(args.length == 1) {
+			
+			p.sendMessage("§e========[ §9/pka session §e]========"); //$NON-NLS-1$
+			p.sendMessage("§6Commandes disponibles :"); //$NON-NLS-1$
+			p.sendMessage("§b/pka session list"); //$NON-NLS-1$
+			p.sendMessage("§b/pka session create <nom>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka session remove <nom>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka session setgame <session> <game>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka session addplayer <session> <pseudo>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka session rmplayer <session> <pseudo>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka session start <session>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka session stop <session>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka session pause <session>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka session reset <session>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka session resetstats <session>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka session info <session>"); //$NON-NLS-1$
+			p.sendMessage("§e========[ §9/pka session §e]========"); //$NON-NLS-1$
+			return true;
+				
+		} else if (args[1].equalsIgnoreCase("list")){ //$NON-NLS-1$
+			
+			p.sendMessage("§e========[ §9Sessions §e]========"); //$NON-NLS-1$
+			for(Session session : sessmg.getSessions().values()) {
+				if(session.isValid()) {
+					p.sendMessage("§a"+session.getName()+" ("+session.getStatus()+")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				} else {
+					TextComponent txt = new TextComponent("§c"+session.getName()+" ("+session.getStatus()+")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					String str = ""; //$NON-NLS-1$
+					for(String s : session.getErrors()) {
+						str	+= "§c"+s; //$NON-NLS-1$
+						if(session.getErrors().indexOf(s)+1 < session.getErrors().size())
+							str +="\n"; //$NON-NLS-1$
+					}
+					txt.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(str).create()));
+					p.spigot().sendMessage(txt);
+				}
+			}
+			p.sendMessage("§e========[ §9GSessions §e]========"); //$NON-NLS-1$
+			return true;	
+			
+		} else if (args[1].equalsIgnoreCase("create")) { //$NON-NLS-1$
+			
+			if(args.length == 2) { // Pas de nom précisé
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser un nom !"); 
+				p.sendMessage(PvPKit.prefix+"§cSyntaxe : /pka session create <nom>"); //$NON-NLS-1$
+				
+			} else if(args.length > 3) { // Trop d'arguments
+				p.sendMessage(PvPKit.prefix+"§cLe nom de la session ne doit pas contenir d'espaces !"); 
+				
+			} else {
+				if(sessmg.containsSession(args[2])) { // Nom déjà pris
+					p.sendMessage(PvPKit.prefix+"§cUne session avec le même nom existe déjà !"); 
+				} else {
+					sessmg.putSession(new Session(args[2]));
+					sessmg.saveSessions();
+					p.sendMessage(PvPKit.prefix+"§Session §b"+args[2]+" créée avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
+					p.sendMessage(PvPKit.prefix+"§6Définissez sa partie avec §2/pka session setgame "+args[2]+" <partie>"); //$NON-NLS-1$ //$NON-NLS-2$
+					p.sendMessage(PvPKit.prefix+"§6Utilisez §2/pka session addplayer/rmplayer "+args[2]+" <pseudo> §6 pour ajouter/retirer des joueurs autorisés dans la session"); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
+			return true;
+			
+		} else if (args[1].equalsIgnoreCase("remove")) { //$NON-NLS-1$
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une session !"); 
+			} else {
+				if(sessmg.containsSession(args[2])) {
+					sessmg.removeSession(args[2]);
+					sessmg.saveSessions();
+					p.sendMessage(PvPKit.prefix+"§Session §b"+args[2]+" §asupprimée avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
+				} else {
+					p.sendMessage(PvPKit.prefix+"§cCette session n'existe pas !"); 
+				}
+			}
+			return true;
+			
+		} else if (args[1].equalsIgnoreCase("setgame")) { //$NON-NLS-1$
+			if(args.length < 3) {
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une session !"); 
+			} else if(sessmg.containsSession(args[2])) {
+				if(args.length < 4) {
+					p.sendMessage(PvPKit.prefix+"§cMerci de préciser une partie !"); 
+				} else if (gamemg.containsGame(args[3])) {
+					Session session = sessmg.getSession(args[2]);
+					Game game = gamemg.getGame(args[3]);
+					session.setGame(game);
+					sessmg.saveSessions();
+					p.sendMessage(PvPKit.prefix+"§aPartie de la session §b"+session.getName()+" §adéfinie avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
+					
+				} else {
+					p.sendMessage(PvPKit.prefix+"§cCette partie n'existe pas !"); 
+				}
+					
+			} else {
+				p.sendMessage(PvPKit.prefix+"§cCette session n'existe pas !"); 
+			}
+			
+			
+		} else if (args[1].equalsIgnoreCase("addplayer")) { //$NON-NLS-1$
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une session !"); 
+			} else if(sessmg.containsSession(args[2])) {
+				if(args.length < 4) {
+					p.sendMessage(PvPKit.prefix+"§cMerci de préciser un joueur ! (pseudo ou all pour tout les joueurs)"); 
+				} else {
+					Session session = sessmg.getSession(args[2]);
+					String pseudo = args[3];
+					
+					if (pseudo.equals("all")) {
+						session.allowPlayer(pseudo);
+					} else {
+						
+						OfflinePlayer player = Bukkit.getOfflinePlayer(pseudo);
+						
+						if (player == null) {
+							p.sendMessage(PvPKit.prefix+"§cCe joueur n'existe pas !");
+							return true;
+						}
+						
+						if (session.getAllowedPlayers().contains(player.getUniqueId().toString())) {
+							p.sendMessage(PvPKit.prefix+"§cCe joueur est déjà autorisé à rejoindre cette session !");
+							return true;
+						}
+						
+						session.allowPlayer(player.getUniqueId().toString());
+						
+					}
+					
+					sessmg.saveSessions();
+					p.sendMessage(PvPKit.prefix+"§6"+pseudo+" §apeut maintenant rejoindre la session §b"+session.getName()); //$NON-NLS-1$ 
+				}
+
+			} else {
+				p.sendMessage(PvPKit.prefix+"§cCette session n'existe pas !"); 
+			}
+			return true;
+
+		} else if (args[1].equalsIgnoreCase("rmplayer")) { //$NON-NLS-1$
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une session !"); 
+			} else if(sessmg.containsSession(args[2])) {
+				if(args.length < 4) {
+					p.sendMessage(PvPKit.prefix+"§cMerci de préciser un joueur ! (pseudo ou all pour tout les joueurs)"); 
+				} else {
+					Session session = sessmg.getSession(args[2]);
+					String pseudo = args[3];
+					
+					if (pseudo.equals("all")) {
+						session.disallowPlayer(pseudo);
+					} else {
+						
+						OfflinePlayer player = Bukkit.getOfflinePlayer(pseudo);
+						
+						if (player == null) {
+							p.sendMessage(PvPKit.prefix+"§cCe joueur n'existe pas !");
+							return true;
+						}
+						
+						if (!session.getAllowedPlayers().contains(player.getUniqueId().toString())) {
+							p.sendMessage(PvPKit.prefix+"§cCe joueur n'est pas autorisé à rejoindre cette session !");
+							return true;
+						}
+						
+						session.disallowPlayer(player.getUniqueId().toString());
+						
+					}
+					
+					sessmg.saveSessions();
+					p.sendMessage(PvPKit.prefix+"§6"+pseudo+" §an'est plus autorisé à rejoindre la session §b"+session.getName()); //$NON-NLS-1$ 
+				}
+
+			} else {
+				p.sendMessage(PvPKit.prefix+"§cCette session n'existe pas !"); 
+			}
+			return true;
+
+		} else if (args[1].equalsIgnoreCase("start")) { //$NON-NLS-1$
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une session !"); 
+			} else if(sessmg.containsSession(args[2])) {
+					Session session = sessmg.getSession(args[2]);
+					
+					switch(session.getStatus()) {
+					
+					case ERROR:
+						p.sendMessage(PvPKit.prefix+"§cImpossible de démarrer la session car elle n'est pas valide ! §8(Utilisez /pka session info "+session.getName()+" pour plus d'informations)"); 
+						return true;
+						
+					case STARTED:
+						p.sendMessage(PvPKit.prefix+"§cCette session est déjà démarrée !"); 
+						return true;
+					
+					default:
+						session.start();
+						p.sendMessage(PvPKit.prefix+"§aSession §B"+session.getName()+" §adémarrée avec succès !"); 
+						break;					
+					}
+
+			} else {
+				p.sendMessage(PvPKit.prefix+"§cCette session n'existe pas !"); 
+			}
+			return true;
+		
+		} else if (args[1].equalsIgnoreCase("stop")) { //$NON-NLS-1$
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une session !"); 
+			} else if(sessmg.containsSession(args[2])) {
+					Session session = sessmg.getSession(args[2]);
+					
+					switch(session.getStatus()) {
+					
+					case STARTED:
+						session.stop();
+						p.sendMessage(PvPKit.prefix+"§aSession §B"+session.getName()+" §cstoppée §aavec succès !");
+						break;
+						
+					default:
+						p.sendMessage(PvPKit.prefix+"§cCette session n'est pas démarrée !"); 
+						break;					
+					}
+
+			} else {
+				p.sendMessage(PvPKit.prefix+"§cCette session n'existe pas !"); 
+			}
+			return true;
+		
+		} else if (args[1].equalsIgnoreCase("pause")) { //$NON-NLS-1$
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une session !"); 
+			} else if(sessmg.containsSession(args[2])) {
+					Session session = sessmg.getSession(args[2]);
+					
+					switch(session.getStatus()) {
+					
+					case STARTED:
+						session.pause();
+						p.sendMessage(PvPKit.prefix+"§aSession §B"+session.getName()+" §amise en §9pause !");
+						break;
+						
+					case PAUSED:
+						session.pause();
+						p.sendMessage(PvPKit.prefix+"§aSession §B"+session.getName()+" §asortie de pause !");
+						break;
+					
+					default:
+						p.sendMessage(PvPKit.prefix+"§cCette session n'est pas démarrée !"); 
+						return true;					
+					}
+
+			} else {
+				p.sendMessage(PvPKit.prefix+"§cCette session n'existe pas !"); 
+			}
+			return true;
+		
+		} else if (args[1].equalsIgnoreCase("reset")) { //$NON-NLS-1$
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une session !"); 
+			} else if(sessmg.containsSession(args[2])) {
+					Session session = sessmg.getSession(args[2]);
+					
+					session.reset();
+					p.sendMessage(PvPKit.prefix+"§aSession §B"+session.getName()+" §aréinitialisée avec succès !"); 
+
+			} else {
+				p.sendMessage(PvPKit.prefix+"§cCette session n'existe pas !"); 
+			}
+			return true;
+		
+		} else if (args[1].equalsIgnoreCase("resetstats")) { //$NON-NLS-1$
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une session !"); 
+			} else if(sessmg.containsSession(args[2])) {
+					Session session = sessmg.getSession(args[2]);
+					
+					session.resetStats();
+					p.sendMessage(PvPKit.prefix+"§aStatistiques de la session §B"+session.getName()+" §aréinitialisées avec succès !"); 
+
+			} else {
+				p.sendMessage(PvPKit.prefix+"§cCette session n'existe pas !"); 
+			}
+			return true;
+		
+		} else if (args[1].equalsIgnoreCase("info")) { //$NON-NLS-1$
+			if(args.length == 2) {
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une session !"); 
+			} else if(gamemg.containsGame(args[2])) {
+				
+				Session session = sessmg.getSession(args[2]);
+				p.sendMessage("§e========[ §9"+session.getName()+" §e]========"); //$NON-NLS-1$ //$NON-NLS-2$
+				p.sendMessage("§6Status : §b"+(session.getStatus() != null ? session.getStatus().toString() : "§cAucun")); //$NON-NLS-1$ //$NON-NLS-2$
+				p.sendMessage("§Partie : §b"+(session.getGame() != null ? session.getGame().getName() : "§cAucune")); //$NON-NLS-1$ //$NON-NLS-2$
+				if(session.isValid()) {
+					p.sendMessage("§6Valide : §aoui"); //$NON-NLS-1$
+				} else {
+					p.sendMessage("§6Valide : §cnon"); //$NON-NLS-1$
+					p.sendMessage("§6Problèmes :"); //$NON-NLS-1$
+					for(String s : session.getErrors())
+						p.sendMessage(" §b- §c"+s); //$NON-NLS-1$
+				}
+				p.sendMessage("§e========[ §9"+session.getName()+" §e]========"); //$NON-NLS-1$ //$NON-NLS-2$
+				
+			} else {
+				p.sendMessage(PvPKit.prefix+"§cCette session n'existe pas !"); 
+			}
+			return true;
+			
+		} else {
+			p.sendMessage(PvPKit.prefix+"§cCommande inconnue !"); 
+			p.sendMessage(PvPKit.prefix + "§cPour une liste des commandes disponibles, entrez &b/pka session"); //$NON-NLS-1$
 			return false;
 		}
 		return false;
