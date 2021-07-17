@@ -28,10 +28,13 @@ import org.bukkit.potion.PotionEffect;
 import fr.aripot007.pvpkit.GameController;
 import fr.aripot007.pvpkit.PvPKit;
 import fr.aripot007.pvpkit.game.Game;
+import fr.aripot007.pvpkit.game.GameStatus;
 import fr.aripot007.pvpkit.game.GameType;
 import fr.aripot007.pvpkit.game.Kit;
 import fr.aripot007.pvpkit.game.PvPKitPlayer;
+import fr.aripot007.pvpkit.game.Session;
 import fr.aripot007.pvpkit.manager.PvPKitPlayerManager;
+import fr.aripot007.pvpkit.manager.SessionManager;
 import fr.aripot007.pvpkit.manager.StatsScoreboardManager;
 
 /**
@@ -41,10 +44,18 @@ import fr.aripot007.pvpkit.manager.StatsScoreboardManager;
  */
 public class GameControllerListener implements Listener {
 	
-	PvPKitPlayerManager playerManager = PvPKit.getInstance().getPvPKitPlayerManager();
-	GameController controller =PvPKit.getInstance().getGameController();
-	StatsScoreboardManager statManager = PvPKit.getInstance().getScoreboardManager();
+	PvPKitPlayerManager playerManager;
+	GameController controller;
+	StatsScoreboardManager statManager;
+	SessionManager sessionManager;
 	
+	public GameControllerListener(PvPKitPlayerManager playerManager, GameController controller, StatsScoreboardManager statManager, SessionManager sessionManager) {
+		this.playerManager = playerManager;
+		this.controller = controller;
+		this.statManager = statManager;
+		this.sessionManager = sessionManager;
+	}
+
 	/*
 	 * Make the player leave the game if he's in one, and remove it from the players map.
 	 */
@@ -89,7 +100,22 @@ public class GameControllerListener implements Listener {
 		PvPKitPlayer victim = playerManager.getPlayer(event.getEntity().getPlayer());
 		
 		if(victim.isInGame()) {
-			PvPKitPlayer killer = playerManager.getPlayer(event.getEntity().getKiller());
+			
+			Game game = controller.getGame(victim);
+			
+			PvPKitPlayer killer = null;
+			
+			// Check if the game is in a session
+			if(game.getStatus() == GameStatus.SESSION) {
+				// The game is used in a session, we use the players provided by this session's playerManager
+				Session session = sessionManager.getSession(game);
+				victim = session.getPlayerManager().getPlayer(victim.getPlayer());
+				killer = session.getPlayerManager().getPlayer(event.getEntity().getKiller());
+				
+			} else {
+				// The game is not in a session, we use the default playerManager
+				killer = playerManager.getPlayer(event.getEntity().getKiller());
+			}			
 			
 			event.setDroppedExp(0);
 			event.setDeathMessage(null);
@@ -103,9 +129,6 @@ public class GameControllerListener implements Listener {
 			
 			// Clear the drops
 			event.getDrops().clear();
-			
-			// Get the game where the event occured
-			Game game = controller.getGame(victim);
 			
 			if(killer != null) {
 				
@@ -121,7 +144,7 @@ public class GameControllerListener implements Listener {
 						
 						// The victim did not kill himself (with a bow for example)
 						
-						// Drop a golden appple if in UHC mode or heal the killer
+						// Drop a golden apple if in UHC mode or heal the killer
 						if(game.getType().equals(GameType.UHC)) {
 							event.getDrops().add(new ItemStack(Material.GOLDEN_APPLE, 1 + apples));
 						} else {
@@ -137,7 +160,7 @@ public class GameControllerListener implements Listener {
 						if(killer.getKit().isRegiven() && killstreak % killer.getKit().getRegiveKills() == 0)
 							safeRegiveKit(killer.getPlayer(), killer.getKit());
 						
-						// Announce the killstrak if it hits remarquable values
+						// Announce the killstrak if it hits remarquable values (multiple of 5 below 30 kills then multiple of 10)
 						if(killstreak > 0 && (killstreak % 10 == 0 || (killstreak % 5 == 0 && killstreak < 30))) {
 							game.sendMessage(PvPKit.prefix+"§b"+killer.getPlayer().getName()+" §6a fait une série de §c"+killstreak+" §6kills !");
 						}
