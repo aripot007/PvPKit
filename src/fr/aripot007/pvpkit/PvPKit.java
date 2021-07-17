@@ -21,6 +21,7 @@ import fr.aripot007.pvpkit.manager.GameManager;
 import fr.aripot007.pvpkit.manager.GameMenuManager;
 import fr.aripot007.pvpkit.manager.KitManager;
 import fr.aripot007.pvpkit.manager.PvPKitPlayerManager;
+import fr.aripot007.pvpkit.manager.SessionManager;
 import fr.aripot007.pvpkit.manager.StatsScoreboardManager;
 
 public class PvPKit extends JavaPlugin {
@@ -34,6 +35,8 @@ public class PvPKit extends JavaPlugin {
 	public GameController gameController;
 	public StatsScoreboardManager statManager;
 	public GameMenuManager gameMenuManager;
+	
+	public SessionManager sessionManager;
 	
 	public GameControllerListener gmList;
 	
@@ -61,6 +64,9 @@ public class PvPKit extends JavaPlugin {
 		statManager = new StatsScoreboardManager();
 		gameMenuManager = new GameMenuManager();
 		gameController = new GameController();
+		
+		sessionManager = new SessionManager();
+		
 		playerManager.reloadData();
 		kitManager.loadKits();
 		Bukkit.getScheduler().runTaskLater(this, new Runnable() {
@@ -75,9 +81,9 @@ public class PvPKit extends JavaPlugin {
 		}, 1L);
 		
 		getCommand("pvpkit").setExecutor(new PvPKitCommand());
-		getCommand("pvpkitadmin").setExecutor(new PvPKitAdminCommand(kitManager, arenaManager, gameManager));
+		getCommand("pvpkitadmin").setExecutor(new PvPKitAdminCommand(kitManager, arenaManager, gameManager, sessionManager));
 		
-		gmList = new GameControllerListener();
+		gmList = new GameControllerListener(playerManager, gameController, statManager, sessionManager);
 		
 		getServer().getPluginManager().registerEvents(gmList, this);
 		
