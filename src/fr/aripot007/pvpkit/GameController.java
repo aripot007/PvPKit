@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -16,12 +17,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 
+import fr.aripot007.pvpkit.game.Arena;
 import fr.aripot007.pvpkit.game.Game;
+import fr.aripot007.pvpkit.game.GameStatus;
 import fr.aripot007.pvpkit.game.Kit;
 import fr.aripot007.pvpkit.game.PvPKitPlayer;
+import fr.aripot007.pvpkit.game.Session;
 import fr.aripot007.pvpkit.listener.KitMenuListener;
 import fr.aripot007.pvpkit.manager.GameMenuManager;
 import fr.aripot007.pvpkit.manager.KitManager;
+import fr.aripot007.pvpkit.manager.PvPKitPlayerManager;
+import fr.aripot007.pvpkit.manager.SessionManager;
 import fr.aripot007.pvpkit.manager.StatsScoreboardManager;
 import fr.aripot007.pvpkit.util.GUIUtil;
 
@@ -39,10 +45,20 @@ public class GameController {
 	private StatsScoreboardManager statManager;
 	private KitManager kitManager = PvPKit.getInstance().getKitManager();
 	private GameMenuManager gmMenuMgr = PvPKit.getInstance().getGameMenuManager();
+	private SessionManager sessMgr;
+	private PvPKitPlayerManager playerMgr = PvPKit.getInstance().getPvPKitPlayerManager();
+	
+	private final Random random = new Random();
 	
 	
-	public GameController() {
-		statManager = PvPKit.getInstance().getScoreboardManager();
+	
+	
+	public GameController(StatsScoreboardManager statManager, KitManager kitManager, GameMenuManager gmMenuMgr, SessionManager sessMgr) {
+		this.statManager = statManager;
+		this.kitManager = kitManager;
+		this.gmMenuMgr = gmMenuMgr;
+		this.sessMgr = sessMgr;
+		
 		kitMenuItem = new ItemStack(Material.CHEST);
 		ItemMeta meta = kitMenuItem.getItemMeta();
 		meta.setDisplayName("§5§lChoisir un kit");
@@ -54,6 +70,7 @@ public class GameController {
 		meta.setDisplayName("§c§lQuitter la partie");
 		meta.setLore(Arrays.asList("§eFaites un click droit avec ce lit","§epour quitter la partie."));
 		leaveItem.setItemMeta(meta);
+		
 	}
 	
 	/**
@@ -100,15 +117,74 @@ public class GameController {
 		
 	}
 	
+	public void joinSession(PvPKitPlayer player, Session session) {
+		
+		if(player.isInGame()) {
+			return;
+		}
+		
+		// Check if the player is allowed to join
+		
+		if (!session.getAllowedPlayers().contains(player.getPlayer().getUniqueId().toString()) && !session.getAllowedPlayers().contains("all") ) {
+			
+			// The player is not allowed to join this session
+			
+			player.getPlayer().sendMessage(PvPKit.prefix+"§cVous ne pouvez pas rejoindre cette session !");
+			return;
+		}
+		Game game = session.getGame();
+		
+		player.setInGame(true);
+		player.setGame(game);
+		game.addPlayer(player);
+		
+		ingamePlayers.put(player, game);
+		
+		// Get the player from the session's player manager
+		player = session.getPlayerManager().getPlayer(player.getPlayer());
+		
+		Player p = player.getPlayer();
+		
+		p.teleport(game.getArena().getSpawn());
+		
+		player.setInGame(true);
+		player.setGame(game);
+		
+		game.sendMessage(PvPKit.prefix+"§b"+p.getName()+" §aa rejoint la partie !");
+		
+		p.setGameMode(GameMode.ADVENTURE);
+		
+		for (PotionEffect effect : p.getActivePotionEffects())
+		    p.removePotionEffect(effect.getType());
+		p.setHealth(20d);
+		
+		gmMenuMgr.updatePlayers();
+		
+		// Give a random kit to the player
+		safeGiveKit(player, getRandomKit(game.getArena()));
+		
+	}
+	
 	/**
 	 * Make a player leave a game.
 	 * @param player The player
 	 */
 	public void leaveGame(PvPKitPlayer player) {
+		
+		// Make sure we have the global player and not a session one
+		player = playerMgr.getGlobalPlayer(player.getPlayer());
+		
 		if(!player.isInGame())
 			return;
 		
 		Game game = ingamePlayers.remove(player);
+		
+		// If the player is in a session, remove it from the session's player manager and switch to the right instance
+		if (game.getStatus() == GameStatus.SESSION) {
+			Session session = sessMgr.getSession(game);
+			session.getPlayerManager().removePlayer(player.getPlayer());
+		}
+		
 		statManager.hideScoreboard(player);
 		player.setKit(null);
 		player.getPlayer().setGameMode(GameMode.SURVIVAL);
@@ -160,6 +236,38 @@ public class GameController {
 			Bukkit.getPluginManager().registerEvents(new KitMenuListener(p.getPlayer().getUniqueId(), "§5§lChoisissez un kit", kitsFormat), PvPKit.getInstance());
 		}
 		return;
+	}
+	
+	public Kit getRandomKit(Arena arena) {
+		
+		return kitManager.getKit(arena.getKits().get(random.nextInt(arena.getKits().size())));
+		
+	}
+	
+	/**
+	 * Safely give a kit to a player
+	 */
+	public static void safeGiveKit(PvPKitPlayer p, Kit kit) {
+		Bukkit.getScheduler().runTaskLater(PvPKit.getInstance(), new Runnable() {
+
+			@Override
+			public void run() {
+				p.getPlayer().getOpenInventory().close();
+				
+				// Give inventory content
+				p.getPlayer().getInventory().setContents(kit.getInventoryContent());
+				p.setKit(kit);
+				
+				// Give potions effects
+				for(PotionEffect effect : kit.getEffects())
+					p.getPlayer().addPotionEffect(effect);
+				
+				p.getPlayer().updateInventory();
+				
+				PvPKit.getInstance().getScoreboardManager().showScoreboard(p); // Update player scoreboard
+			}
+			
+		}, 1L);
 	}
 	
 	/**
