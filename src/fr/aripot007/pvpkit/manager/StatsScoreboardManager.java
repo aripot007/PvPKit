@@ -6,7 +6,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 
-import fr.aripot007.pvpkit.PvPKit;
+import fr.aripot007.pvpkit.game.Game;
 import fr.aripot007.pvpkit.game.PvPKitPlayer;
 
 /**
@@ -25,6 +25,8 @@ public class StatsScoreboardManager {
 		
 		Scoreboard b = mgr.getNewScoreboard();
 		
+		Game game = pkp.getGame();
+		
 		Objective o = b.registerNewObjective("PKKills", "", "§6§lPvP Kit");
 		o.setDisplaySlot(DisplaySlot.SIDEBAR);
 		
@@ -35,8 +37,8 @@ public class StatsScoreboardManager {
 		o.getScore("§e Killstreak : §b"+pkp.getKillstreak()).setScore(7);
 		o.getScore("§r§r§7===============").setScore(6);
 		o.getScore("§e Kit : §b"+(pkp.getKit() != null ? pkp.getKit().getName() : "§cAucun")).setScore(5);
-		o.getScore("§e Arène : §b"+PvPKit.getInstance().getGameController().getGame(pkp).getName()).setScore(4);
-		o.getScore("§e Mode : §b"+PvPKit.getInstance().getGameController().getGame(pkp).getType().toString()).setScore(3);
+		o.getScore("§e Arène : §b"+game.getName()).setScore(4);
+		o.getScore("§e Mode : §b"+game.getType().toString()).setScore(3);
 		o.getScore("§7===============").setScore(2);
 		o.getScore("§6§l    MJC Craft").setScore(1);
 		
