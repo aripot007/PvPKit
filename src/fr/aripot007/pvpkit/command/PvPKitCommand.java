@@ -10,8 +10,11 @@ import fr.aripot007.pvpkit.PvPKit;
 import fr.aripot007.pvpkit.game.Game;
 import fr.aripot007.pvpkit.game.GameStatus;
 import fr.aripot007.pvpkit.game.PvPKitPlayer;
+import fr.aripot007.pvpkit.game.Session;
+import fr.aripot007.pvpkit.game.SessionStatus;
 import fr.aripot007.pvpkit.manager.GameManager;
 import fr.aripot007.pvpkit.manager.PvPKitPlayerManager;
+import fr.aripot007.pvpkit.manager.SessionManager;
 
 /** 
  * Handle generic user commands
@@ -19,9 +22,17 @@ import fr.aripot007.pvpkit.manager.PvPKitPlayerManager;
  * */
 public class PvPKitCommand implements CommandExecutor {
 	
-	PvPKitPlayerManager playerManager = PvPKit.getInstance().getPvPKitPlayerManager();
-	GameManager gameManager = PvPKit.getInstance().getGameManager();
-	GameController controller = PvPKit.getInstance().getGameController();
+	PvPKitPlayerManager playerManager;
+	GameManager gameManager;
+	GameController controller;
+	SessionManager sessManager;
+	
+	public PvPKitCommand(PvPKitPlayerManager playerManager, GameManager gameManager, GameController controller, SessionManager sessManager) {
+		this.playerManager = playerManager;
+		this.gameManager = gameManager;
+		this.controller = controller;
+		this.sessManager = sessManager;
+	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String msg, String[] args) {
@@ -93,19 +104,40 @@ public class PvPKitCommand implements CommandExecutor {
 					
 					if(!game.isValid()) {
 						player.getPlayer().sendMessage(PvPKit.prefix+"§cCette partie n'est pas valide !");
-						return true;
 					} else if(!game.getStatus().equals(GameStatus.OPEN)) {
 						player.getPlayer().sendMessage(PvPKit.prefix+"§cCette partie n'est pas disponible !");
-						return true;
 					} else {
 						controller.joinGame(player, game);
-						return true;
 					}
 					
+				} else if (sessManager.containsSession(args[1])) {
+					
+					// The player is trying to join a session
+					
+					Session session = sessManager.getSession(args[1]);
+					
+					if (!session.isValid()) {
+						
+						player.getPlayer().sendMessage(PvPKit.prefix+"§cCette partie n'est pas valide !");
+						
+					} else if (session.getStatus() == SessionStatus.ERROR) {
+						
+						player.getPlayer().sendMessage(PvPKit.prefix+"§cCette partie n'est pas valide !");
+						
+					} else {
+						
+						controller.joinSession(player, session);
+						
+					}
+					
+					
 				} else {
+				
 					player.getPlayer().sendMessage(PvPKit.prefix+"§cCette partie n'existe pas !");
-					return true;
 				}
+				
+				return true;
+				
 			}
 		}
 	}
