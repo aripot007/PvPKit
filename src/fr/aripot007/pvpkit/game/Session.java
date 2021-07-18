@@ -4,15 +4,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
+import fr.aripot007.pvpkit.GameController;
 import fr.aripot007.pvpkit.PvPKit;
 import fr.aripot007.pvpkit.manager.SessionPlayerManager;
 
 @SerializableAs("Session")
 public class Session implements ConfigurationSerializable {
+	
+	private static final Random random = new Random();
 
 	private String name;
 
@@ -52,6 +59,10 @@ public class Session implements ConfigurationSerializable {
 		playerManager.resetStats();
 	}
 	
+	public void saveStats(String filename) {
+		playerManager.saveStats(filename);
+	}
+	
 	public void start() {
 		
 		switch (status) {
@@ -61,21 +72,35 @@ public class Session implements ConfigurationSerializable {
 		
 		case READY:
 			
+			// Reset the stats
+			resetStats();
+			
 			// Teleport every players waiting to the spawn
 			// Make them leave and join again in order to be teleported
-			// TODO: Give random kits and spread players in the arena ?
-			for (PvPKitPlayer p : playerManager.getPlayers().values()) {
-				PvPKit.getInstance().getGameController().leaveGame(p);
-				PvPKit.getInstance().getGameController().joinGame(p, game);
+			for (int i = 0; i < game.getPlayers().size(); i++) {
+				
+				PvPKitPlayer player = playerManager.getPlayer(game.getPlayers().get(i).getPlayer());
+				
+				Player p = player.getPlayer();
+				
+				p.teleport(game.getArena().getSpawn());
+				
+				for (PotionEffect effect : p.getActivePotionEffects())
+				    p.removePotionEffect(effect.getType());
+				p.setHealth(20d);
+				
+				// Give a random kit to the player
+				GameController.safeGiveKit(player, getRandomKit(game.getArena()));
 			}
+			
 			status = SessionStatus.STARTED;
-			game.sendMessage(PvPKit.prefix+"§aLa session vient de commencer !");
+			game.sendMessage(PvPKit.prefix+"§6La session vient de commencer !");
 			break;
 			
 		case PAUSED:
 			
 			status = SessionStatus.STARTED;
-			game.sendMessage(PvPKit.prefix+"§aLa session vient de reprendre !");
+			game.sendMessage(PvPKit.prefix+"§6La session vient de reprendre !");
 		
 		default:
 			break;
@@ -83,19 +108,75 @@ public class Session implements ConfigurationSerializable {
 		
 	}
 	
-	public void stop() {
+	public Kit getRandomKit(Arena arena) {
+		
+		return PvPKit.getInstance().getKitManager().getKit(arena.getKits().get(random.nextInt(arena.getKits().size())));
+		
+	}
+	
+	public void stop(String filename) {
+		
 		status = SessionStatus.READY;
-		for (PvPKitPlayer p : playerManager.getPlayers().values()) {
+		
+		// Sauvegarde des résultats
+		playerManager.saveStats(filename);
+		
+		// TODO: Calcule classement
+		// List<PvPKitPlayer> classement = new ArrayList<PvPKitPlayer>();
+		
+		for (int i = 0; i < game.getPlayers().size(); i++) {
+			
+			PvPKitPlayer p = game.getPlayers().get(i);
+			PvPKitPlayer sessionPlayer = playerManager.getPlayer(p.getPlayer());
+			
+			sessionPlayer.getPlayer().sendMessage(PvPKit.prefix+"§c§lLa session est terminée !\n \n"+
+					"§a==========[ §bRésultats §a]==========\n \n"+
+					"§6Kills : §3"+sessionPlayer.getKills()+
+					"\n§6Morts : §3"+sessionPlayer.getDeaths()+
+					"\n§6Meilleur killstreak : §3"+sessionPlayer.getBestKillStreak()+
+					"\n \n§a==========[ §bRésultats §a]==========");
+			
 			PvPKit.getInstance().getGameController().leaveGame(p);
-			p.getPlayer().sendMessage(PvPKit.prefix+"§c§lLa session est terminée !\n"+
-													"§6 Résultats :");
+			i--;
 			
-			// TODO : Donner les résultats (classement + score perso)
 			
+			// TODO : Donner le classement
 		}
 	}
 	
 	public void pause() {
+		
+		switch (status) {
+		
+		case STARTED:
+			status = SessionStatus.PAUSED;
+			game.sendMessage(PvPKit.prefix+"§6La session a été mise en pause !");
+			
+			// Give potion effects to all players
+			for (PvPKitPlayer p : game.getPlayers()) {
+				p.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, Integer.MAX_VALUE, 254, false, false));
+				p.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 254, false, false));
+				p.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 249, false, false));
+			}
+			
+			break;
+			
+		case PAUSED:
+			status = SessionStatus.STARTED;
+			
+			// Remove potion effects from all players
+			for (PvPKitPlayer p : game.getPlayers()) {
+				p.getPlayer().removePotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
+				p.getPlayer().removePotionEffect(PotionEffectType.SLOW);
+				p.getPlayer().removePotionEffect(PotionEffectType.JUMP);
+			}
+			game.sendMessage(PvPKit.prefix+"§6La session vient de reprendre !");
+			break;
+		
+		default:
+			break;
+		
+		}
 		
 	}
 	
@@ -115,7 +196,7 @@ public class Session implements ConfigurationSerializable {
 	
 	public boolean isValid() {
 		if(game != null && game.isValid()) {
-			if(this.status.equals(SessionStatus.ERROR))
+			if(this.status == null || this.status.equals(SessionStatus.ERROR))
 				this.status = SessionStatus.READY;
 			return true;
 		} else {
@@ -150,7 +231,12 @@ public class Session implements ConfigurationSerializable {
 	public static Session deserialize(Map<String, Object> map) {
 		String name = (String) map.get("name");
 		Game game = PvPKit.getInstance().getGameManager().getGame((String) map.get("game"));
+		@SuppressWarnings("unchecked")
 		List<String> players = (List<String>) map.get("players");
+		
+		// Make sure the game has the SESSION status
+		game.setStatus(GameStatus.SESSION);
+		
 		return new Session(name, game, players);
 	}
 	
