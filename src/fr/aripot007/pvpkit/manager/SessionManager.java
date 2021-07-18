@@ -28,6 +28,7 @@ public class SessionManager {
 		log = Bukkit.getPluginManager().getPlugin("PvPKit").getLogger();
 		sessionsFile = new File(Bukkit.getPluginManager().getPlugin("PvPKit").getDataFolder(), "sessions.yml");
 		sessions = new HashMap<String, Session>();
+		sessionsGame = new HashMap<String, Session>();
 		loadSessions();
 	}
 	
