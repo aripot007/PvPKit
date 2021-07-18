@@ -2,10 +2,8 @@ package fr.aripot007.pvpkit.game;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
@@ -35,7 +33,7 @@ public class Game implements ConfigurationSerializable {
 	private GameType type;
 	
 	/** The players currently in the game */
-	private Set<PvPKitPlayer> players = new HashSet<PvPKitPlayer>();
+	private List<PvPKitPlayer> players = new ArrayList<PvPKitPlayer>();
 	
 	public Game(String name){
 		this.name = name;
@@ -114,7 +112,7 @@ public class Game implements ConfigurationSerializable {
 		isValid();
 	}
 
-	public Set<PvPKitPlayer> getPlayers() {
+	public List<PvPKitPlayer> getPlayers() {
 		return players;
 	}
 	public void addPlayer(PvPKitPlayer p) {
