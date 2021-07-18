@@ -122,5 +122,13 @@ public class PvPKitPlayer {
 		return new PvPKitPlayer(p, kills, deaths, killstreak, bestKs);
 	}
 
+	@Override
+	public String toString() {
+		return "PvPKitPlayer@" + Integer.toHexString(hashCode()) + " [player=" + player + ", kills=" + kills + ", deaths=" + deaths + ", killstreak="
+				+ killstreak + ", bestKs=" + bestKs + ", kit=" + kit + ", game=" + game + ", inGame=" + inGame + "]";
+	}
+	
+	
+
 	
 }
