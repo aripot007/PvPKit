@@ -41,9 +41,9 @@ public class SessionManager {
 			sessions.put(s, (Session) sessionsData.get(s));
 		}
 		
-		for (Session s : sessions.values()) {
-			if (s.getGame() != null)
-				sessionsGame.put(s.getGame().getName(), s);
+		for (Session sess : sessions.values()) {
+			if (sess.getGame() != null)
+				sessionsGame.put(sess.getGame().getName(), sess);
 		}
 		
 	}
