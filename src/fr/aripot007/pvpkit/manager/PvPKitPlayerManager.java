@@ -12,6 +12,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
+import fr.aripot007.pvpkit.PvPKit;
+import fr.aripot007.pvpkit.game.GameStatus;
 import fr.aripot007.pvpkit.game.OfflinePvPKitPlayer;
 import fr.aripot007.pvpkit.game.PvPKitPlayer;
 
@@ -64,6 +66,18 @@ public class PvPKitPlayerManager {
 	}
 
 	public PvPKitPlayer getPlayer(Player p) {
+		
+		PvPKitPlayer player = players.get(p);
+		
+		if (player.isInGame() && player.getGame().getStatus() == GameStatus.SESSION) {
+			// The player is in a session game, get the right instance
+			player = PvPKit.getInstance().getSessionManager().getSession(player.getGame())
+							.getPlayerManager().getPlayer(p);	
+		}
+		return player;
+	}
+	
+	public PvPKitPlayer getGlobalPlayer(Player p) {
 		return players.get(p);
 	}
 	
@@ -78,7 +92,7 @@ public class PvPKitPlayerManager {
 	 * Try to get it from the config file, and if it does not exist, create a new one.
 	 */
 	@SuppressWarnings("unchecked")
-	public void registerPlayer(Player p) {
+	public PvPKitPlayer registerPlayer(Player p) {
 		
 		String key = p.getUniqueId().toString();
 		
@@ -106,15 +120,21 @@ public class PvPKitPlayerManager {
 				
 			}
 			
-			players.put(p, PvPKitPlayer.deserialize(map, p));
+			PvPKitPlayer player = PvPKitPlayer.deserialize(map, p);
+			
+			players.put(p, player);
+			
+			return player;
+			
 		} else {
 			
 			// The player does not exist in the config file
 			
 			PvPKitPlayer player = new PvPKitPlayer(p);
 			players.put(p, player);
+			
+			return player;
 		}
-		return;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -157,13 +177,12 @@ public class PvPKitPlayerManager {
 		}
 		
 	}
-	
-	// Debug only
-	public void dumpPlayers() {
-		System.out.println("PlayerManager players :");
-		for(Entry<Player, PvPKitPlayer> e : players.entrySet()) {
-			System.out.println(e.getKey().toString()+" : "+e.getValue());
-		}
+
+	@Override
+	public String toString() {
+		return "PvPKitPlayerManager [players=" + players + "]";
 	}
+	
+	
 
 }
