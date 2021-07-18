@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import fr.aripot007.pvpkit.game.OfflinePvPKitPlayer;
@@ -18,14 +19,24 @@ public class SessionPlayerManager extends PvPKitPlayerManager {
 
 	public SessionPlayerManager(Session session) {
 		log = Bukkit.getPluginManager().getPlugin("PvPKit").getLogger();
-		playersFile = new File(Bukkit.getPluginManager().getPlugin("PvPKit").getDataFolder()+"/session/"+session.getName(), "players.yml");
-		players = new HashMap<Player, PvPKitPlayer>();
+		this.playersFile = new File(Bukkit.getPluginManager().getPlugin("PvPKit").getDataFolder()+"/session/"+session.getName(), "players.yml");
+		this.playersData = YamlConfiguration.loadConfiguration(playersFile);
+		this.players = new HashMap<Player, PvPKitPlayer>();
 		this.session = session;
-		reloadData();
 	}
 	
 	public Session getSession() {
 		return this.session;
+	}
+	
+	@Override
+	public PvPKitPlayer getPlayer(Player p) {
+		PvPKitPlayer player = players.get(p);
+		
+		if (player == null)
+			player = registerPlayer(p);
+		
+		return player;
 	}
 
 	/**
@@ -66,6 +77,15 @@ public class SessionPlayerManager extends PvPKitPlayerManager {
 	
 	public Map<Player, PvPKitPlayer> getPlayers() {
 		return players;
+	}
+	
+	public void saveStats(String filename) {
+		
+		File originalFile = this.playersFile;
+		this.playersFile = new File(Bukkit.getPluginManager().getPlugin("PvPKit").getDataFolder()+"/session/"+session.getName(), filename+".yml");
+		savePlayers();
+		this.playersFile = originalFile;
+		
 	}
 	
 }
