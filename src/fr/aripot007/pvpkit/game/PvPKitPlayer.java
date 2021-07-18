@@ -15,6 +15,9 @@ public class PvPKitPlayer {
 	private int kills, deaths, killstreak, bestKs;
 	private Kit kit;
 	
+	/** The game the player is in*/
+	private Game game;
+	
 	/** Is this player in a game ? **/
 	private boolean inGame;
 	
@@ -37,6 +40,16 @@ public class PvPKitPlayer {
 	}
 
 	
+	
+	
+	public Game getGame() {
+		return game;
+	}
+
+	public void setGame(Game game) {
+		this.game = game;
+	}
+
 	public int getKills() {
 		return kills;
 	}
