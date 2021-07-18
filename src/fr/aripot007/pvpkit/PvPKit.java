@@ -15,6 +15,7 @@ import fr.aripot007.pvpkit.command.PvPKitCommand;
 import fr.aripot007.pvpkit.game.Arena;
 import fr.aripot007.pvpkit.game.Game;
 import fr.aripot007.pvpkit.game.Kit;
+import fr.aripot007.pvpkit.game.Session;
 import fr.aripot007.pvpkit.listener.GameControllerListener;
 import fr.aripot007.pvpkit.manager.ArenaManager;
 import fr.aripot007.pvpkit.manager.GameManager;
@@ -53,6 +54,7 @@ public class PvPKit extends JavaPlugin {
 		ConfigurationSerialization.registerClass(Kit.class, "Kit");
 		ConfigurationSerialization.registerClass(Arena.class, "Arena");
 		ConfigurationSerialization.registerClass(Game.class, "Game");
+		ConfigurationSerialization.registerClass(Session.class, "Session");
 		
 		prefix = this.getConfig().getString("prefix").replaceAll("&", "§");
 		
@@ -63,9 +65,9 @@ public class PvPKit extends JavaPlugin {
 		playerManager = new PvPKitPlayerManager();
 		statManager = new StatsScoreboardManager();
 		gameMenuManager = new GameMenuManager();
-		gameController = new GameController();
 		
 		sessionManager = new SessionManager();
+		gameController = new GameController(statManager, kitManager, gameMenuManager, sessionManager);
 		
 		playerManager.reloadData();
 		kitManager.loadKits();
@@ -80,8 +82,8 @@ public class PvPKit extends JavaPlugin {
 			
 		}, 1L);
 		
-		getCommand("pvpkit").setExecutor(new PvPKitCommand());
-		getCommand("pvpkitadmin").setExecutor(new PvPKitAdminCommand(kitManager, arenaManager, gameManager, sessionManager));
+		getCommand("pvpkit").setExecutor(new PvPKitCommand(playerManager, gameManager, gameController, sessionManager));
+		getCommand("pvpkitadmin").setExecutor(new PvPKitAdminCommand(kitManager, arenaManager, gameManager, sessionManager, gameController, playerManager));
 		
 		gmList = new GameControllerListener(playerManager, gameController, statManager, sessionManager);
 		
@@ -146,6 +148,10 @@ public class PvPKit extends JavaPlugin {
 
 	public GameControllerListener getGmList() {
 		return gmList;
+	}
+
+	public SessionManager getSessionManager() {
+		return sessionManager;
 	}
 	
 }
