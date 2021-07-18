@@ -62,20 +62,31 @@ public class GameController {
 	 * @param game The game
 	 */
 	public void joinGame(PvPKitPlayer player, Game game) {
+		
 		if(player.isInGame()) {
 			return;
 		}	
+		
 		Player p = player.getPlayer();
+		
 		p.teleport(game.getArena().getSpawn());
+		
 		player.setInGame(true);
+		player.setGame(game);
 		game.addPlayer(player);
+		
 		game.sendMessage(PvPKit.prefix+"§b"+player.getPlayer().getName()+" §aa rejoint la partie !");
+		
 		ingamePlayers.put(player, game);
+		
 		p.setGameMode(GameMode.ADVENTURE);
+		
 		statManager.showScoreboard(player);
+		
 		for (PotionEffect effect : p.getActivePotionEffects())
 		    p.removePotionEffect(effect.getType());
 		p.setHealth(20d);
+		
 		gmMenuMgr.updatePlayers();
 		
 		Bukkit.getScheduler().runTaskLater(PvPKit.getInstance(), new Runnable() { // set the player's inventory after 5 ticks
@@ -103,6 +114,7 @@ public class GameController {
 		player.getPlayer().setGameMode(GameMode.SURVIVAL);
 		player.getPlayer().getInventory().clear();
 		player.setInGame(false);
+		player.setGame(null);
 		if(game != null) {
 			game.sendMessage(PvPKit.prefix+"§b"+player.getPlayer().getName()+" §ca quitté la partie !");
 			game.removePlayer(player);
