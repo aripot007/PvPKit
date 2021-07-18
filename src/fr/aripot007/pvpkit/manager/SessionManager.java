@@ -103,7 +103,8 @@ public class SessionManager {
 
 	public void removeSession(String name) {
 		Session session = getSession(name);
-		session.getGame().setStatus(GameStatus.CONFIG);
+		if (session.getGame() != null)
+			session.getGame().setStatus(GameStatus.CONFIG);
 		sessions.remove(name);
 	}
 
