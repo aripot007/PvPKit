@@ -33,6 +33,7 @@ import fr.aripot007.pvpkit.game.GameType;
 import fr.aripot007.pvpkit.game.Kit;
 import fr.aripot007.pvpkit.game.PvPKitPlayer;
 import fr.aripot007.pvpkit.game.Session;
+import fr.aripot007.pvpkit.game.SessionStatus;
 import fr.aripot007.pvpkit.manager.PvPKitPlayerManager;
 import fr.aripot007.pvpkit.manager.SessionManager;
 import fr.aripot007.pvpkit.manager.StatsScoreboardManager;
@@ -101,21 +102,7 @@ public class GameControllerListener implements Listener {
 		
 		if(victim.isInGame()) {
 			
-			Game game = controller.getGame(victim);
-			
-			PvPKitPlayer killer = null;
-			
-			// Check if the game is in a session
-			if(game.getStatus() == GameStatus.SESSION) {
-				// The game is used in a session, we use the players provided by this session's playerManager
-				Session session = sessionManager.getSession(game);
-				victim = session.getPlayerManager().getPlayer(victim.getPlayer());
-				killer = session.getPlayerManager().getPlayer(event.getEntity().getKiller());
-				
-			} else {
-				// The game is not in a session, we use the default playerManager
-				killer = playerManager.getPlayer(event.getEntity().getKiller());
-			}			
+			Game game = victim.getGame();	
 			
 			event.setDroppedExp(0);
 			event.setDeathMessage(null);
@@ -129,6 +116,25 @@ public class GameControllerListener implements Listener {
 			
 			// Clear the drops
 			event.getDrops().clear();
+			
+			PvPKitPlayer killer = null;
+			
+			if (event.getEntity().getKiller() != null) {
+				
+				// Check if the game is in a session
+				
+				if(game.getStatus() == GameStatus.SESSION) {
+					
+					// The game is used in a session, we use the players provided by this session's playerManager
+					Session session = sessionManager.getSession(game);
+					killer = session.getPlayerManager().getPlayer(event.getEntity().getKiller());
+					
+				} else {
+					
+					// The game is not in a session, we use the default playerManager
+					killer = playerManager.getPlayer(event.getEntity().getKiller());
+				}	
+			}
 			
 			if(killer != null) {
 				
@@ -165,9 +171,9 @@ public class GameControllerListener implements Listener {
 							game.sendMessage(PvPKit.prefix+"§b"+killer.getPlayer().getName()+" §6a fait une série de §c"+killstreak+" §6kills !");
 						}
 						
-						// Update scoreboards
-						statManager.showScoreboard(victim);
-						statManager.showScoreboard(killer);
+						// Update scoreboards with the default playermanger's players
+						statManager.showScoreboard(playerManager.getPlayer(victim.getPlayer()));
+						statManager.showScoreboard(playerManager.getPlayer(killer.getPlayer()));
 						return;
 						
 					} else {
@@ -179,7 +185,7 @@ public class GameControllerListener implements Listener {
 							event.getDrops().add(new ItemStack(Material.GOLDEN_APPLE, 1 + apples));
 						
 						game.sendMessage(PvPKit.prefix+"§b"+victim.getPlayer().getName()+" §6s'est suicidé !");
-						statManager.showScoreboard(victim);
+						statManager.showScoreboard(playerManager.getPlayer(victim.getPlayer()));
 						return;
 					}
 					
@@ -191,7 +197,7 @@ public class GameControllerListener implements Listener {
 				// The victim died of a natural cause
 				
 				victim.addDeath();
-				statManager.showScoreboard(victim);
+				statManager.showScoreboard(playerManager.getPlayer(victim.getPlayer()));
 				
 				DamageCause cause = event.getEntity().getLastDamageCause().getCause();
 				
@@ -269,15 +275,29 @@ public class GameControllerListener implements Listener {
 		PvPKitPlayer player = playerManager.getPlayer(event.getPlayer());
 		if(player.isInGame()) {
 			
-			event.setRespawnLocation(controller.getGame(player).getArena().getSpawn()); // Set respawn location to game's spawn
+			event.setRespawnLocation(player.getGame().getArena().getSpawn()); // Set respawn location to game's spawn
 
 			player.getPlayer().getInventory().clear(); // Clear inventory
 			
 			player.setKit(null); // Reset kit
 			
-			player.getPlayer().getInventory().setContents(controller.getMenuContent()); // Give menu
+			// If the player is in a session, give him a random kit
 			
-			player.getPlayer().updateInventory();
+			Game game = player.getGame();
+			
+			if(game.getStatus() == GameStatus.SESSION) {
+				
+				safeGiveKit(player, controller.getRandomKit(game.getArena()));
+				
+			} else {
+				
+				// If he is not in a game, we give him the menu
+				
+				player.getPlayer().getInventory().setContents(controller.getMenuContent()); // Give menu
+				
+				player.getPlayer().updateInventory();
+			
+			}
 		}
 		return;
 	}
@@ -310,6 +330,8 @@ public class GameControllerListener implements Listener {
 			} else if(event.getItem().equals(controller.getLeaveItem())) {
 				event.setCancelled(true);
 				controller.leaveGame(p);
+			} else if (p.getGame().getStatus() == GameStatus.SESSION && sessionManager.getSession(p.getGame()).getStatus() == SessionStatus.PAUSED) {
+				event.setCancelled(true);
 			}
 		}
 	}
@@ -338,6 +360,11 @@ public class GameControllerListener implements Listener {
 			PvPKitPlayer victim = playerManager.getPlayer((Player) event.getEntity());
 			
 			if(victim.isInGame() && attacker.isInGame()) {
+				
+				// The victim's session is paused
+				if (victim.getGame().getStatus() == GameStatus.SESSION && sessionManager.getSession(victim.getGame()).getStatus() == SessionStatus.PAUSED) {
+					event.setCancelled(true);
+				}
 				
 				// The two players are in a game
 				
@@ -474,6 +501,32 @@ public class GameControllerListener implements Listener {
 		}
 		
 		return false;
+	}
+
+	/**
+	 * Safely give a kit to a player
+	 */
+	private void safeGiveKit(PvPKitPlayer p, Kit kit) {
+		Bukkit.getScheduler().runTaskLater(PvPKit.getInstance(), new Runnable() {
+
+			@Override
+			public void run() {
+				p.getPlayer().getOpenInventory().close();
+				
+				// Give inventory content
+				p.getPlayer().getInventory().setContents(kit.getInventoryContent());
+				p.setKit(kit);
+				
+				// Give potions effects
+				for(PotionEffect effect : kit.getEffects())
+					p.getPlayer().addPotionEffect(effect);
+				
+				p.getPlayer().updateInventory();
+				
+				PvPKit.getInstance().getScoreboardManager().showScoreboard(p); // Update player scoreboard
+			}
+			
+		}, 1L);
 	}
 	
 }
