@@ -15,6 +15,7 @@ import org.bukkit.potion.PotionEffectType;
 import fr.aripot007.pvpkit.GameController;
 import fr.aripot007.pvpkit.PvPKit;
 import fr.aripot007.pvpkit.manager.SessionPlayerManager;
+import fr.aripot007.pvpkit.util.Timer;
 
 @SerializableAs("Session")
 public class Session implements ConfigurationSerializable {
@@ -22,6 +23,10 @@ public class Session implements ConfigurationSerializable {
 	private static final Random random = new Random();
 
 	private String name;
+	
+	private Long duration;
+	
+	private Timer timer;
 
 	private Game game;
 	
@@ -35,19 +40,24 @@ public class Session implements ConfigurationSerializable {
 	public Session() {
 		playerManager = new SessionPlayerManager(this);
 		status = SessionStatus.ERROR;
+		duration = 0L;
+		timer= new Timer(this, 0L);
 	}
 	
 	public Session(String name) {
 		this.name = name;
 		this.status = SessionStatus.ERROR;
 		this.allowedPlayers = new ArrayList<String>();
+		timer = new Timer(this, 0L);
 		this.playerManager = new SessionPlayerManager(this);
 	}
 	
-	public Session(String name, Game game, List<String> allowedPlayers) {
+	public Session(String name, Game game, List<String> allowedPlayers, Long duration) {
 		this.name = name;
 		this.game = game;
+		this.duration = duration;
 		this.allowedPlayers = allowedPlayers;
+		this.timer = new Timer(this, duration);
 		this.playerManager = new SessionPlayerManager(this);
 		isValid();
 	}
@@ -75,6 +85,9 @@ public class Session implements ConfigurationSerializable {
 			// Reset the stats
 			resetStats();
 			
+			// Reset the timer
+			timer.reset();
+			
 			// Teleport every players waiting to the spawn
 			// Make them leave and join again in order to be teleported
 			for (int i = 0; i < game.getPlayers().size(); i++) {
@@ -93,14 +106,17 @@ public class Session implements ConfigurationSerializable {
 				GameController.safeGiveKit(player, getRandomKit(game.getArena()));
 			}
 			
+			// If the session has a duration, start the timer
+			if (duration != 0)
+				timer.start();
+			
 			status = SessionStatus.STARTED;
 			game.sendMessage(PvPKit.prefix+"§6La session vient de commencer !");
 			break;
 			
 		case PAUSED:
 			
-			status = SessionStatus.STARTED;
-			game.sendMessage(PvPKit.prefix+"§6La session vient de reprendre !");
+			pause();
 		
 		default:
 			break;
@@ -118,11 +134,13 @@ public class Session implements ConfigurationSerializable {
 		
 		status = SessionStatus.READY;
 		
+		// If the session has a duration, stop and reset the timer
+		if (duration != 0)
+			timer.reset();
+		
 		// Sauvegarde des résultats
 		playerManager.saveStats(filename);
 		
-		// TODO: Calcule classement
-		// List<PvPKitPlayer> classement = new ArrayList<PvPKitPlayer>();
 		
 		for (int i = 0; i < game.getPlayers().size(); i++) {
 			
@@ -139,8 +157,6 @@ public class Session implements ConfigurationSerializable {
 			PvPKit.getInstance().getGameController().leaveGame(p);
 			i--;
 			
-			
-			// TODO : Donner le classement
 		}
 	}
 	
@@ -151,6 +167,10 @@ public class Session implements ConfigurationSerializable {
 		case STARTED:
 			status = SessionStatus.PAUSED;
 			game.sendMessage(PvPKit.prefix+"§6La session a été mise en pause !");
+			
+			// If the session has a duration, stop the timer
+			if (duration != 0)
+				timer.pause();
 			
 			// Give potion effects to all players
 			for (PvPKitPlayer p : game.getPlayers()) {
@@ -170,6 +190,11 @@ public class Session implements ConfigurationSerializable {
 				p.getPlayer().removePotionEffect(PotionEffectType.SLOW);
 				p.getPlayer().removePotionEffect(PotionEffectType.JUMP);
 			}
+			
+			// If the session has a duration, stop the timer
+			if (duration != 0)
+				timer.start();
+			
 			game.sendMessage(PvPKit.prefix+"§6La session vient de reprendre !");
 			break;
 		
@@ -185,6 +210,7 @@ public class Session implements ConfigurationSerializable {
 	 */
 	public void reset() {
 		resetStats();
+		timer.reset();
 		status = SessionStatus.READY;
 		isValid();
 	}
@@ -225,6 +251,7 @@ public class Session implements ConfigurationSerializable {
 		result.put("name", name);
 		result.put("game", game != null ? game.getName() : null);
 		result.put("players", allowedPlayers);
+		result.put("duration", duration);
 		return result;
 	}
 	
@@ -234,10 +261,26 @@ public class Session implements ConfigurationSerializable {
 		@SuppressWarnings("unchecked")
 		List<String> players = (List<String>) map.get("players");
 		
+		Long duration = Long.parseLong(map.getOrDefault("duration", 0).toString());
+		
 		// Make sure the game has the SESSION status
 		game.setStatus(GameStatus.SESSION);
 		
-		return new Session(name, game, players);
+		return new Session(name, game, players, duration);
+	}
+	
+	public Long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(Long duration) {
+		this.duration = duration;
+		timer.setDuration(duration);
+		timer.reset();
+	}
+
+	public Timer getTimer() {
+		return timer;
 	}
 	
 	public String getName() {

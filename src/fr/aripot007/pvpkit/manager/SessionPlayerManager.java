@@ -38,6 +38,18 @@ public class SessionPlayerManager extends PvPKitPlayerManager {
 		
 		return player;
 	}
+	
+	@Override
+	public void removePlayer(Player p) {
+		session.getTimer().removePlayer(p);
+		super.removePlayer(p);
+	}
+	
+	@Override
+	public PvPKitPlayer registerPlayer(Player p) {
+		session.getTimer().addPlayer(p);
+		return super.registerPlayer(p);
+	}
 
 	/**
 	 * Reset the stats of every players in the session

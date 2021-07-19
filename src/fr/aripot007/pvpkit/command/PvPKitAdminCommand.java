@@ -906,6 +906,7 @@ public class PvPKitAdminCommand implements CommandExecutor {
 			p.sendMessage("§b/pka session create <nom>"); //$NON-NLS-1$
 			p.sendMessage("§b/pka session remove <nom>"); //$NON-NLS-1$
 			p.sendMessage("§b/pka session setgame <session> <game>"); //$NON-NLS-1$
+			p.sendMessage("§b/pka session setduration <session> <seconds>"); //$NON-NLS-1$
 			p.sendMessage("§b/pka session addplayer <session> <pseudo>"); //$NON-NLS-1$
 			p.sendMessage("§b/pka session rmplayer <session> <pseudo>"); //$NON-NLS-1$
 			p.sendMessage("§b/pka session start <session>"); //$NON-NLS-1$
@@ -992,6 +993,46 @@ public class PvPKitAdminCommand implements CommandExecutor {
 					
 				} else {
 					p.sendMessage(PvPKit.prefix+"§cCette partie n'existe pas !"); 
+				}
+					
+			} else {
+				p.sendMessage(PvPKit.prefix+"§cCette session n'existe pas !"); 
+			}
+			
+			
+		}  else if (args[1].equalsIgnoreCase("setduration")) { //$NON-NLS-1$
+			if(args.length < 3) {
+				p.sendMessage(PvPKit.prefix+"§cMerci de préciser une session !"); 
+			} else if(sessmg.containsSession(args[2])) {
+				if(args.length < 4) {
+					
+					p.sendMessage(PvPKit.prefix+"§cMerci de préciser une durée !"); 
+					
+				} else {
+					
+					Long duration;
+					
+					try {
+						
+						duration = Long.parseLong(args[3]);
+						
+					} catch (NumberFormatException e) {
+						p.sendMessage(PvPKit.prefix+"§cMerci de préciser une durée valide ! (0 pour pas de limite)");
+						return false;
+					}
+					
+					if (duration < 0) {
+						p.sendMessage(PvPKit.prefix+"§cMerci de préciser une durée valide ! (0 pour pas de limite)");
+						return (true);
+					}
+					
+					Session session = sessmg.getSession(args[2]);
+					
+					session.setDuration(duration);
+					
+					sessmg.saveSessions();
+					p.sendMessage(PvPKit.prefix+"§aDurée de la session §b"+session.getName()+" §adéfinie avec succès !"); //$NON-NLS-1$ //$NON-NLS-2$
+					
 				}
 					
 			} else {
