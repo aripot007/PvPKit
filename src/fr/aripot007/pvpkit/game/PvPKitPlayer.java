@@ -123,6 +123,7 @@ public class PvPKitPlayer {
 		result.put("deaths", deaths);
 		result.put("killstreak", killstreak);
 		result.put("best-killstreak", bestKs);
+		result.put("name", player.getName());
 		return result;
 	}
 	
